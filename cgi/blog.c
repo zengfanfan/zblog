@@ -1,30 +1,19 @@
 #include <lib/holyhttp.h>
+#include <utils/string.h>
 
-static void cgi_test(holyreq_t *req)
+void cgi_index(holyreq_t *req)
 {
-    req->send_html(req, "baby is ok!");
-}
+    char args[1024] = {0};
+    char *titles[] = {"hello baby!", "test title!"};
+    char *contents[] = {"Hello!!", "This is a test blog!"};
+    int i;
 
-static void cgi_render_string(holyreq_t *req)
-{
-    req->send_srender(req,
-                      "Hello, @name! Are you @age?",
-                      "name=%s,age=%d",
-                      "baby", get_now_us() % 100);
-}
+    for (i = 0; i < 2; i++) {
+        STR_APPEND(args, sizeof(args), "blog.%d.title=%s", i, titles[i]);
+        STR_APPEND(args, sizeof(args), "blog.%d.content=%s", i, contents[i]);
+    }
 
-static void cgi_render_file(holyreq_t *req)
-{
-    req->send_frender(req,
-                      "test.html",
-                      "name=%s,age=%d,a.1=%s,a.2=%s,a.b.1=A,a.b.2=B,a.b.3=C",
-                      "baby", get_now_us() % 100, "Zeng", "Fanfan");
-}
-
-static void cgi_index(holyreq_t *req)
-{
-    req->send_frender(req, "index.html",
-                      "title=%s",
-                      "Buy You Luck!");
+    
+    req->send_frender(req, "index.html", args);
 }
 

@@ -4,6 +4,9 @@
 #include <sys/time.h>
 #include <lib/holyhttp.h>
 
+int check_authorized(holyreq_t *req);
+void init_cgi(void);
+
 int main(int argc, char *argv[])
 {
     // holycfg_t cfg;

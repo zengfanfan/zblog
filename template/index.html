@@ -4,14 +4,6 @@
     <meta charset="UTF-8">
     <title>@title</title>
     <link href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        #left{padding:10px 0;}
-        #middle{padding:0;}
-        #right{padding:10px 0;}
-        #left img{height:400px;width:100%;}
-        #middle img{height:420px;width:100%;}
-        #right img{height:400px;width:100%;}
-    </style>
 </head>
 <body>
 <div class="jumbotron col-xs-12">
@@ -19,18 +11,12 @@
   <p>You still need to have a dream. What if it came true?</p>
 </div>
 
-<div class="container-fluid">
-    <div class="row">
-        <div id="left" class="col-xs-4">
-            <img src="static/left.jpg" alt="Redistribution" class="img-thumbnail">
-        </div>
-        <div id="middle" class="col-xs-4">
-            <img src="static/middle.jpg" alt="UNIQUE CHAMPION" class="img-thumbnail">
-        </div>
-        <div id="right" class="col-xs-4">
-            <img src="static/right.jpg" alt="GROUP WINNER" class="img-thumbnail">
-        </div>
-    </div>
+<div class="list-group">
+    #for @b in @blog:
+    <a href="/blog?key=@b.key" class="list-group-item">
+    @b.title
+    </a>
+    #end
 </div>
 
 </body>

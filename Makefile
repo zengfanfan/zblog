@@ -1,12 +1,9 @@
 export TOP := $(shell pwd)
 export _DEBUG_ := y
-export CC := gcc
-export STRIP := strip
 
-TARGET := byl
+TARGET := zblog
 OBJS := main.o
-SUBDIRS := 
-LIBPATH := $(shell realpath ../holyhttp)
+SUBDIRS := utils cgi
 
 CFLAGS-${_DEBUG_} += -g -ggdb
 CFLAGS-y += -I${TOP}

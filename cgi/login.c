@@ -1,4 +1,6 @@
+#include <stdlib.h>
 #include <lib/holyhttp.h>
+#include <utils/print.h>
 
 int check_authorized(holyreq_t *req)
 {

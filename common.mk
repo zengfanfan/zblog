@@ -11,9 +11,7 @@ ${TARGET}: ${OBJS} ${SUBOBJS}
 
 subs:
 	@for i in ${SUBDIRS}; \
-		#${ENTER} ${MYPATH}/$$i;\
 		do make -C $$i PARENT=${MYPATH} || exit $$?;\
-		#${LEAVE} ${MYPATH}/$$i;\
 	done
 
 clean:

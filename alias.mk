@@ -6,73 +6,49 @@ define _NOP_
 	@echo $$* >> /dev/null
 endef
 
-_O_CC_ := $(CC)
 define CC
 	@$(call PRINT_COLOR, CC, $@)
-	@$(_O_CC_)
+	@gcc
 endef
 
-_O_LD_ := $(LD)
 define LD
 	@$(call PRINT_COLOR, LD, $@)
-	@$(_O_LD_)
+	@ld
 endef
 
-_O_AR_ := $(AR)
 define AR
 	@$(call PRINT_COLOR, AR, $@)
-	@$(_O_AR_)
+	@ar
 endef
 
-_O_AS_ := $(AS)
 define AS
 	@$(call PRINT_COLOR, AS, $@)
-	@$(_O_AS_)
+	@as
 endef
 
-_O_STRIP_ := $(STRIP)
 ifeq ($(_DEBUG_),y)
-	STRIP := $(_NOP_)
-else ifeq ($(_O_STRIP_),)
-	STRIP := $(_NOP_)
+STRIP := $(_NOP_)
 else
 define STRIP
 	@$(call PRINT_COLOR, STRIP, $@)
-	@$(_O_STRIP_)
+	@strip
 endef
 endif
-
-_O_RM_ := $(RM)
-define RM
-	@-_my_func_() \
-	{\
-		$(call PRINT_COLOR, RM, "$$*");\
-		$(_O_RM_) $$*;\
-	};\
-	_my_func_
-endef
 
 define INSTALL
 	@-_my_func_() \
 	{\
 		$(call PRINT_COLOR, INSTALL, $$1);\
-		cp -f $$1 $$2;\
+		cp -f $$*;\
 	};\
 	_my_func_
 endef
 
-define ENTER
+define RM
 	@-_my_func_() \
 	{\
-		$(call PRINT_COLOR, '..', $$*);\
-	};\
-	_my_func_
-endef
-
-define LEAVE
-	@-_my_func_() \
-	{\
-		$(call PRINT_COLOR, '..', $$*);\
+		$(call PRINT_COLOR, RM, "$$*");\
+		rm -f $$*;\
 	};\
 	_my_func_
 endef
