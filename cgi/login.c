@@ -25,7 +25,6 @@ void cgi_login(holyreq_t *req)
     name = req->get_arg(req, "username");
     pwd = req->get_arg(req, "password");
     if (!name || !pwd) {
-        DEBUG("username and password are both needed");
         return;
     }
     
