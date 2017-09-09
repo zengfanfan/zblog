@@ -27,8 +27,8 @@ ${TARGET}: ${OBJS} ${SUBOBJS}
 	${STRIP} $@
 
 cplib:
-	@-cp -f ${TOP}/lib/libholyhttp.so /lib
-	@-cp -f ${TOP}/lib/libholyhttp.so /usr/lib
-	@-cp -f ${TOP}/lib/libholyhttp.so /lib64
-	@-cp -f ${TOP}/lib/libholyhttp.so /usr/lib64
+	@-cp -f ${LIBFILE} /lib
+	@-cp -f ${LIBFILE} /usr/lib
+	@-cp -f ${LIBFILE} /lib64
+	@-cp -f ${LIBFILE} /usr/lib64
 
