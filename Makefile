@@ -4,6 +4,8 @@ export _DEBUG_ := y
 TARGET := zblog
 OBJS := main.o
 SUBDIRS := utils cgi
+#LIBFILE := ${TOP}/lib/libholyhttp.so
+LIBFILE := ${TOP}/../holyhttp/libholyhttp.so
 
 CFLAGS-${_DEBUG_} += -g -ggdb
 CFLAGS-y += -I${TOP}
@@ -16,9 +18,9 @@ CFLAGS-${_DEBUG_} += -DDEBUG_ON=1
 ########## DO NOT MODIFY THE BELOW ##########
 export CFLAGS := ${CFLAGS-y}
 
-include ${TOP}/common.mk
+myall: cplib subs ${TARGET}
 
-all: cplib subs ${TARGET}
+include ${TOP}/common.mk
 
 ${TARGET}: ${OBJS} ${SUBOBJS}
 	${CC} -o $@ $^ ${CFLAGS}

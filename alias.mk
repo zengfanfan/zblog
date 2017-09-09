@@ -35,21 +35,37 @@ define STRIP
 endef
 endif
 
-define INSTALL
-	@-_my_func_() \
-	{\
-		$(call PRINT_COLOR, INSTALL, $$1);\
-		cp -f $$*;\
-	};\
-	_my_func_
-endef
-
 define RM
-	@-_my_func_() \
+	@-_my_rm_() \
 	{\
 		$(call PRINT_COLOR, RM, "$$*");\
 		rm -f $$*;\
 	};\
-	_my_func_
+	_my_rm_
+endef
+
+define INSTALL
+	@-_my_install_() \
+	{\
+		$(call PRINT_COLOR, INSTALL, $$1);\
+		cp -f $$1 $$2;\
+	};\
+	_my_install_
+endef
+
+define ENTER
+	_my_enter_() \
+	{\
+		$(call PRINT_COLOR, '>>', "$$*");\
+	};\
+	_my_enter_
+endef
+
+define LEAVE
+	_my_leave_() \
+	{\
+		$(call PRINT_COLOR, '<<', "$$*");\
+	};\
+	_my_leave_
 endef
 

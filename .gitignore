@@ -1,6 +1,5 @@
 # target
-holymsg
-test
+zblog
 
 #[cmake]
 cmake-*
