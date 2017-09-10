@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>@title</title>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/trumbowyg/trumbowyg.min.css" rel="stylesheet">
+    <link href="/static/trumbowyg/colors.min.css" rel="stylesheet">
+    <link href="/static/common.css?@g.start_time" rel="stylesheet">
+    <link href="/static/blog.css?@g.start_time" rel="stylesheet">
+</head>
+<body>
+<div class="container col-md-6 col-md-offset-3">
+<form method="post">
+    <div class="form-group">
+        <div><input class="form-control" name="title" value="@blog.title"></div>
+        <div>
+            <textarea class="form-control editor" name="content">@blog.content</textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-4 col-sm-offset-4 btn-group">
+            <button class="btn btn-success"> 　保　存　 </button>
+            #if @modify != 0:
+            <a href="/blog?key=@blog.key" class="btn btn-warning"> 　取　消　 </a>
+            #end
+        </div>
+    </div>
+
+</form>
+</div>
+</body>
+<script src="https://cdn.bootcss.com/jquery/3.2.0/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="/static/trumbowyg/trumbowyg.min.js"></script>
+<script src="/static/trumbowyg/colors.min.js"></script>
+<script src="/static/trumbowyg/zh_cn.min.js"></script>
+<script>
+$(function(){
+    $('.editor').trumbowyg({
+        lang:'zh_cn',
+        btns: [
+            ['viewHtml'],
+            'btnGrp-design',
+            'btnGrp-justify',
+            'btnGrp-lists',
+            'formatting',
+            ['superscript', 'subscript'],
+            ['foreColor', 'backColor'],
+            ['link'],
+            ['insertImage'],
+            ['horizontalRule'],
+            ['removeformat'],
+            'fullscreen',
+        ],
+    });
+});
+</script>
+</html>

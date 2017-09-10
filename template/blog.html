@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>@blog.title - @g.site_name</title>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/common.css?@g.start_time" rel="stylesheet">
+    <link href="/static/blog.css?@g.start_time" rel="stylesheet">
+</head>
+<body>
+<div class="container col-md-6 col-md-offset-3">
+
+    <h1 class="title">
+        @blog.title
+        #if @online != 0:
+        <small class="pull-right">
+        <a href="/blog/mdf?key=@blog.key" title="编辑"><i class="glyphicon glyphicon-edit text-success"></i></a>　
+        <a href="/blog/del?key=@blog.key" title="删除"><i class="glyphicon glyphicon-trash text-danger"></i></a>
+        </small>
+        #end
+    </h1>
+    <div class="content">@blog.content</div>
+
+</div>
+</body>
+<script src="https://cdn.bootcss.com/jquery/3.2.0/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</html>

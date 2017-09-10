@@ -1,14 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>@g.site_name 登录</title>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/common.css?@g.start_time" rel="stylesheet">
+    <link href="/static/login.css?@g.start_time" rel="stylesheet">
 </head>
-<body>
+<body style="background-image:url(/static/login_bg.jpg?@g.start_time)">
+
+<div class="wrapper">
+
 <form method="post">
-    <input name="username" value="holy">
-    <input name="password" type="password" value="http">
-    <button>Login</button>
+    <!-- to disable autocomplete -->
+    <input id="username">
+    <input type="password" id="password">
+
+    <div class="title shadow">
+        <span>欢迎登录</span>
+        <img class="logo shadow" src="/static/favicon.ico">
+        <span>管理站点</span>
+    </div>
+
+    <div class="inputs">
+        <div class="form-group">
+            <input class="form-control" name="username" value="holy"
+                   placeholder="用户名" required autofocus autocomplete="off">
+            <span class="glyphicon glyphicon-user form-control-feedback"></span>
+        </div>
+
+        <div class="form-group">
+            <input type="password" class="form-control" name="password" value="http"
+                   placeholder="密码" required autocomplete="off">
+            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        </div>
+
+        <div class="form-group">
+            <button class="form-control btn btn-primary">登 录</button>
+        </div>
+    </div>
 </form>
+
+<footer class="shadow">
+    &copy; 2017 &nbsp; @g.copyright &nbsp; All rights reserved.
+</footer>
+</div>
+
+<script src="https://cdn.bootcss.com/jquery/3.2.0/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
 </html>

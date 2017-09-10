@@ -1,0 +1,17 @@
+a.list-group-item {
+    font-size: 20px;
+    font-weight: bold;
+    color: #49c;
+}
+a.list-group-item  i {
+    color: transparent;
+    margin-right: 3px;
+}
+a.list-group-item:hover  i {
+    color: #49c;
+}
+a.list-group-item:hover > span {
+    color: #49c;
+    font-weight: bold;
+    border-bottom: 3px solid #49c;
+}

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <lib/holyhttp.h>
 
 int check_authorized(holyreq_t *req);

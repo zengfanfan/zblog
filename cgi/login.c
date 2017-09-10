@@ -1,11 +1,21 @@
 #include <stdlib.h>
 #include <lib/holyhttp.h>
 #include <utils/print.h>
+#include "cgi.h"
 
-int check_authorized(holyreq_t *req)
+int is_online(holyreq_t *req)
 {
     char *online = req->get_session(req, "online");
     if (online && atoi(online)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int check_authorized(holyreq_t *req)
+{
+    if (is_online(req)) {
         return 1;
     } else {
         req->redirect(req, "/login");
