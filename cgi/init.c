@@ -38,7 +38,8 @@ void init_cgi(void)
     
     db_table_init(DEF_DB_NAME, &blogs, "blog", blog_cols, BLOG_COL_NUM);
     //db_table_init(DEF_DB_NAME, &comments, "comment", comment_cols, COMMENT_COL_NUM);
-    
+
+#if 0
     {
         db_value_t values[BLOG_COL_NUM] = {0};
         values[BLOG_COL_TITLE].s = g_test_blog_title;
@@ -48,7 +49,8 @@ void init_cgi(void)
         values[BLOG_COL_ACTIVE].i = 1;
         blogs.add_or_ignore(&blogs, values);
     }
-    
+#endif
+
     holyhttp_set_common_render_args(
         "g.start_time=%ld,g.site_name=%s,g.copyright=%s",
         g_start_time, g_copyright, g_site_name);
