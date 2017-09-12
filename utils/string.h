@@ -35,5 +35,6 @@ void *memfind(void *src, u32 slen, void *pattern, u32 plen);
 char *strnstr(char *src, char *pattern, u32 slen);
 void *memdup(void *src, u32 len);
 void join_path(char *buf, u32 bufsz, char *path1, char *path2);
+int exec_sys_cmd(char *fmt, ...);
 
 #endif // HOLYHTTP_STRING_H

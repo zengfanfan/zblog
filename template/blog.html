@@ -14,8 +14,8 @@
         @blog.title
         #if @online != 0:
         <small class="pull-right">
-        <a href="/blog/mdf?key=@blog.key" title="编辑"><i class="glyphicon glyphicon-edit text-success"></i></a>　
-        <a href="/blog/del?key=@blog.key" title="删除"><i class="glyphicon glyphicon-trash text-danger"></i></a>
+        <a href="/blog/mdf?id=@blog.id" title="编辑"><i class="glyphicon glyphicon-edit text-success"></i></a>　
+        <a href="/blog/del?id=@blog.id" title="删除"><i class="glyphicon glyphicon-trash text-danger"></i></a>
         </small>
         #end
     </h1>

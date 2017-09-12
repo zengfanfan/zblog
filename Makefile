@@ -9,11 +9,12 @@ LIBFILE := ${TOP}/../holyhttp/libholyhttp.so
 
 CFLAGS-${_DEBUG_} += -g -ggdb
 CFLAGS-y += -I${TOP}
-CFLAGS-y += -lholyhttp
+CFLAGS-y += -lholyhttp -lsqlite3
 CFLAGS-y += -D_GNU_SOURCE -D__USE_XOPEN
 CFLAGS-y += -Wall -Wno-missing-braces
 CFLAGS-y += -Werror
 CFLAGS-${_DEBUG_} += -DDEBUG_ON=1
+#CFLAGS-y += -DDEBUG_VERBOSE_ON=1
 
 ########## DO NOT MODIFY THE BELOW ##########
 export CFLAGS := ${CFLAGS-y}

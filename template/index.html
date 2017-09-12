@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>@title</title>
+    <title>@g.site_name</title>
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/common.css?@g.start_time" rel="stylesheet">
     <link href="/static/index.css?@g.start_time" rel="stylesheet">
@@ -11,7 +11,7 @@
 <div class="container">
 
 <div class="jumbotron">
-    <h1>@title</h1>
+    <h1>@g.site_name</h1>
     <p>You still need to have a dream. What if it came true?</p>
     <a href="/blog/add" class="btn btn-success btn-lg">
         <i class="glyphicon glyphicon-pencil"> </i> 写文章
@@ -20,10 +20,9 @@
 
 <div class="list-group">
     #for @b in @blogs:
-    <a href="/blog?key=@b.key" class="list-group-item">
+    <a href="/blog?id=@b.id" class="list-group-item">
         <i class="glyphicon glyphicon-menu-right"> </i>
         <span>@b.title</span>
-        <span class="badge">14</span>
     </a>
     #end
 </div>

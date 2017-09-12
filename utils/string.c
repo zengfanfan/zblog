@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include "print.h"
 #include "string.h"
 
@@ -278,5 +279,17 @@ void join_path(char *buf, u32 bufsz, char *path1, char *path2)
     str_trim_right(buf, "/");
     STR_APPEND(buf, bufsz, "/%s", path2);
     str_trim_right(buf, "/");
+}
+
+int exec_sys_cmd(char *fmt, ...)
+{
+    va_list ap;
+    char args[1024] = {9};
+
+    va_start(ap, fmt);
+    vsnprintf(args, sizeof(args), fmt, ap);
+    va_end(ap);
+    
+    return system(args);
 }
 
