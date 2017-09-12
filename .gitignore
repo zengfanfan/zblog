@@ -54,5 +54,5 @@ tmp
 dist
 build
 bin
-lib
+#lib
 lib64
