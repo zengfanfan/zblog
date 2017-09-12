@@ -19,7 +19,6 @@ int check_authorized(holyreq_t *req)
         return 1;
     } else {
         req->set_session(req, "url.before.login", req->url);
-        DEBUG("url.before.login = %s", req->url);
         req->redirect(req, "/login");
         return 0;
     }
@@ -51,7 +50,6 @@ void cgi_login(holyreq_t *req)
     if (referer && referer[0]
             && !str_starts_with(referer, "/login")
             && !str_starts_with(referer, "login")) {
-        DEBUG("url.before.login = %s", referer);
         req->redirect(req, referer);
     } else {
         req->redirect(req, "/");
