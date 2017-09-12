@@ -74,45 +74,6 @@ char *strnstr(char *src, char *pattern, u32 slen)
     return (char *)memfind(src, slen, pattern, strlen(pattern));
 }
 
-void str_trim_left(char *s, char *chars)
-{
-    char *head;
-    
-    if (!s) {
-        return;
-    }
-    
-    for (head = s; *head && strchr(chars, *head); ++head);
-
-    if (head != s) {
-        strcpy(s, head);
-    }
-}
-
-void str_trim_right(char *s, char *chars)
-{
-    char *tail;
-    
-    if (!s) {
-        return;
-    }
-
-    tail = s + strlen(s) - 1;
-    if (tail < s) {
-        return;
-    }
-    
-    for (; tail >= s && strchr(chars, *tail); --tail);
-
-    tail[1] = 0;
-}
-
-void str_trim(char *s, char *chars)
-{
-    str_trim_left(s, chars);
-    str_trim_right(s, chars);
-}
-
 void str2lower(char *str)
 {
     if (!str) {
@@ -233,52 +194,6 @@ char *uint_to_s64(u64 n)
     }
     result[i] = 0;
     return result;
-}
-
-void str_append(char **s, char *d)
-{
-    u32 len;
-    char *new;
-    
-    if (!s || !d) {
-        return;
-    }
-
-    if (!*s) {
-        *s = strdup(d);
-        return;
-    }
-
-    len = strlen(*s) + strlen(d) + 1;
-    new = (char *)malloc(len);
-    if (!new) {
-        MEMFAIL();
-        return;
-    }
-
-    strcpy(new, *s);
-    strcat(new, d);
-    new[len - 1] = 0;
-    free(*s);
-    *s = new;
-}
-
-void join_path(char *buf, u32 bufsz, char *path1, char *path2)
-{
-    if (!buf || !bufsz || !path2) {
-        return;
-    }
-
-    buf[0] = 0;
-    if (!path1 || path2[0] == '/') {
-        STR_APPEND(buf, bufsz, path2);
-        return;
-    }
-
-    STR_APPEND(buf, bufsz, "%s", path1);
-    str_trim_right(buf, "/");
-    STR_APPEND(buf, bufsz, "/%s", path2);
-    str_trim_right(buf, "/");
 }
 
 int exec_sys_cmd(char *fmt, ...)

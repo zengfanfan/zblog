@@ -1,6 +1,8 @@
 #ifndef ZBLOG_CGI_H
 #define ZBLOG_CGI_H
 
+#include <utils/print.h>
+
 #define ARGS_BUF_SIZE (1024*1024) // 1M
 #define MAX_URI_LEN 250
 

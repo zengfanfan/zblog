@@ -55,6 +55,10 @@ void init_cgi(void)
         "g.start_time=%ld,g.site_name=%s,g.copyright=%s",
         g_start_time, g_copyright, g_site_name);
 
+    WARN("cgi_add_blog: %p", cgi_add_blog);
+    WARN("cgi_modify_blog: %p", cgi_modify_blog);
+    WARN("cgi_del_blog: %p", cgi_del_blog);
+
     holyhttp_set_white_route("/", cgi_index);
     holyhttp_set_white_route("login", cgi_login);
     holyhttp_set_white_route("blog", cgi_show_blog);

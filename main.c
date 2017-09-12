@@ -9,7 +9,7 @@ void init_cgi(void);
 int main(int argc, char *argv[])
 {
     holycfg_t cfg = {
-        .port = 80,
+        .port = 10000,
     };
     
     holyhttp_init(&cfg);

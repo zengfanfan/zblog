@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <lib/holyhttp.h>
-#include <utils/print.h>
+#include <utils/string.h>
 #include "cgi.h"
 
 int is_online(holyreq_t *req)
@@ -48,7 +48,9 @@ void cgi_login(holyreq_t *req)
     req->set_session(req, "online", "1");
 
     referer = req->get_session(req, "url.before.login");
-    if (referer && referer[0]) {
+    if (referer && referer[0]
+            && !str_starts_with(referer, "/login")
+            && !str_starts_with(referer, "login")) {
         DEBUG("url.before.login = %s", referer);
         req->redirect(req, referer);
     } else {
