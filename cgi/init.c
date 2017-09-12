@@ -14,6 +14,7 @@ static db_col_t blog_cols[BLOG_COL_NUM] = {
     DB_COL_SET_STR(BLOG_COL_CONTENT, "content", BLOG_CONTENT_LEN),
     DB_COL_SET_STR(BLOG_COL_CREATED_TIME, "created time", TIME_STR_LEN),
     DB_COL_SET_STR(BLOG_COL_LAST_MODIFIED, "last modified", TIME_STR_LEN),
+    DB_COL_SET_INT(BLOG_COL_ACTIVE, "active"),
 };
 
 char *get_datetime_str(void)
@@ -44,6 +45,7 @@ void init_cgi(void)
         values[BLOG_COL_CONTENT].s = g_test_blog_content;
         values[BLOG_COL_CREATED_TIME].s = get_datetime_str();
         values[BLOG_COL_LAST_MODIFIED].s = get_datetime_str();
+        values[BLOG_COL_ACTIVE].i = 1;
         blogs.add_or_ignore(&blogs, values);
     }
     

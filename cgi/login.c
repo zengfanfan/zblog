@@ -18,6 +18,8 @@ int check_authorized(holyreq_t *req)
     if (is_online(req)) {
         return 1;
     } else {
+        req->set_session(req, "url.before.login", req->url);
+        DEBUG("url.before.login = %s", req->url);
         req->redirect(req, "/login");
         return 0;
     }
@@ -25,7 +27,7 @@ int check_authorized(holyreq_t *req)
 
 void cgi_login(holyreq_t *req)
 {
-    char *name, *pwd;
+    char *name, *pwd, *referer;
     
     if (req->method != POST_METHOD) {
         req->send_frender(req, "login.html", "");
@@ -44,8 +46,14 @@ void cgi_login(holyreq_t *req)
     }
 
     req->set_session(req, "online", "1");
-    req->redirect(req, "/");
-    return;
+
+    referer = req->get_session(req, "url.before.login");
+    if (referer && referer[0]) {
+        DEBUG("url.before.login = %s", referer);
+        req->redirect(req, referer);
+    } else {
+        req->redirect(req, "/");
+    }
 }
 
 void cgi_logout(holyreq_t *req)
