@@ -82,7 +82,7 @@ void cgi_modify_blog(holyreq_t *req)
 
     if (req->method != POST_METHOD) {
         STR_APPEND(args, sizeof(args), "modify=1,");
-        STR_APPEND(args, sizeof(args), "title=[EDIT] %s - %s,",
+        STR_APPEND(args, sizeof(args), "title=[编辑文章] %s - %s,",
             blog->values[BLOG_COL_TITLE].s, g_site_name);
         STR_APPEND(args, sizeof(args), "blog.id=%d,", blog->id);
         STR_APPEND(args, sizeof(args), "blog.title=%s,",
@@ -127,7 +127,7 @@ void cgi_add_blog(holyreq_t *req)
 
     if (req->method != POST_METHOD) {
         STR_APPEND(args, sizeof(args), "modify=0,");
-        STR_APPEND(args, sizeof(args), "title=[NEW] %s,", g_site_name);
+        STR_APPEND(args, sizeof(args), "title=[写文章] %s,", g_site_name);
         STR_APPEND(args, sizeof(args), "blog.title=,blog.content=,");
         req->send_frender_by(req, "edit.html", args);
         return;
