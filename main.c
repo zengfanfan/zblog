@@ -8,8 +8,11 @@ void init_cgi(void);
 
 int main(int argc, char *argv[])
 {
-    // holycfg_t cfg;
-    holyhttp_init(NULL);
+    holycfg_t cfg = {
+        .port = 80,
+    };
+    
+    holyhttp_init(&cfg);
     holyhttp_set_debug_level(HOLY_DBG_DETAIL);
     holyhttp_set_prerouting(check_authorized);
     init_cgi();
