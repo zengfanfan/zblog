@@ -36,6 +36,7 @@ void cgi_login(holyreq_t *req)
     name = req->get_arg(req, "username");
     pwd = req->get_arg(req, "password");
     if (!name || !pwd) {
+        req->send_status(req, BAD_REQUEST);
         return;
     }
     
