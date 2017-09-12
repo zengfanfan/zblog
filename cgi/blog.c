@@ -157,16 +157,11 @@ void cgi_del_blog(holyreq_t *req)
 {
     char *id = req->get_arg(req, "id");
 
-    if (!id || req->method != POST_METHOD) {
-        req->send_status(req, BAD_REQUEST);
-        return;
-    }
-
     if (!blogs.del(&blogs, atoi(id))) {
         req->send_status(req, INTERNAL_ERROR);
         return;
     }
     
-    req->redirect(req, "/");
+    req->redirect_top(req, "/");
 }
 
