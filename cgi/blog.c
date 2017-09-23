@@ -185,6 +185,6 @@ void cgi_del_blog(holyreq_t *req)
         return;
     }
     
-    req->redirect_top(req, "/");
+    req->redirect(req, "/");
 }
 

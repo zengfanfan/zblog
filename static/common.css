@@ -318,3 +318,21 @@ input.help-block,select.help-block{
     -ms-filter:"progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000')";/* IE 8 */
     filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000'); /* IE<8 */
 }
+
+.navbar-brand {
+    padding: 0 10px;
+}
+
+.navbar-brand img {
+    height: 50px;
+    width: 50px;
+}
+
+.container {
+    margin-top: 44px;
+    padding: 0;
+    padding-top: 22px;
+    font-size: 16px;
+    line-height: 1.8;
+    font-family: Verdana, Arial, Helvetica, "Microsoft YaHei";
+}

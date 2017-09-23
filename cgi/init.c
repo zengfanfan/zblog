@@ -4,10 +4,23 @@
 #include "cgi.h"
 #include "blog.h"
 
+#define SITE_NAME "Zeng Fanfan"
+#define COPYRIGHT "Zeng Fanfan"
+
 long g_start_time;
 db_table_t blogs;
-char *g_site_name = "Zeng Fanfan";
-char *g_copyright = "Zeng Fanfan";
+char *g_site_name = SITE_NAME;
+char *g_copyright = COPYRIGHT;
+static char *navbar_html = \
+"<nav class=\"navbar navbar-default\">"\
+"<div class=\"container-fluid\">"\
+"<div class=\"navbar-header\">"\
+"<a class=\"navbar-brand\"href=\"/\">"\
+"<img src=\"/static/favicon.ico\"alt=\"HOME\"></a></div>"\
+"<p class=\"navbar-text\"><a class=\"navbar-link\"href=\"/\">"SITE_NAME"</a></p>"\
+"<a href=\"/blog/add\"class=\"btn btn-default navbar-btn navbar-right\">"\
+"<i class=\"glyphicon glyphicon-pencil\">&#12288;</i>写文章</a>"\
+"</div></nav>";
 
 static db_col_t blog_cols[BLOG_COL_NUM] = {
     DB_COL_SET_STR_UNQ(BLOG_COL_TITLE, "title", BLOG_TITLE_LEN),
@@ -47,13 +60,13 @@ void init_cgi(void)
         values[BLOG_COL_CREATED_TIME].s = get_datetime_str();
         values[BLOG_COL_LAST_MODIFIED].s = get_datetime_str();
         values[BLOG_COL_ACTIVE].i = 1;
-        blogs.add_or_ignore(&blogs, values);
+        blogs.add_or_replace(&blogs, values);
     }
 #endif
 
-    holyhttp_set_common_render_args(
-        "g.start_time=%ld,g.site_name=%s,g.copyright=%s",
-        g_start_time, g_copyright, g_site_name);
+    holyhttp_set_common_render_args("\x01",
+        "g.start_time=%ld\x01g.site_name=%s\x01g.copyright=%s\x01g.navbar=%s",
+        g_start_time, g_copyright, g_site_name, navbar_html);
 
     holyhttp_set_white_route("/", cgi_index);
     holyhttp_set_white_route("login", cgi_login);

@@ -8,24 +8,9 @@
     <link href="/static/index.css?@g.start_time" rel="stylesheet">
 </head>
 <body>
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/">
-                <img src="/static/favicon.ico" alt="HOME">
-            </a>
-        </div>
+@g.navbar
 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <span>@g.site_name</span>
-        <a href="/blog/add" class="nav navbar-nav navbar-right btn btn-success btn-lg">
-            <i class="glyphicon glyphicon-pencil"> </i> 写文章
-        </a>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-
-<div class="container">
+<div class="container col-md-6 col-md-offset-3">
 
 <div class="list-group">
     #for @b in @blogs:

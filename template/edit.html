@@ -10,6 +10,8 @@
     <link href="/static/blog.css?@g.start_time" rel="stylesheet">
 </head>
 <body>
+@g.navbar
+
 <div class="container col-md-6 col-md-offset-3">
 <form method="post">
     <div class="form-group">
@@ -54,6 +56,7 @@ $(function(){
             'fullscreen',
         ],
     });
+    setTimeout(function(){$('[autofocus]').focus();}, 1000);
 });
 </script>
 </html>
