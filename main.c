@@ -10,6 +10,9 @@ int main(int argc, char *argv[])
 {
     holycfg_t cfg = {
         .port = 10000,
+        .socket_timeout = 60,
+        .session_timeout = 3600,
+            
     };
     
     holyhttp_init(&cfg);

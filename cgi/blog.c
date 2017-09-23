@@ -82,7 +82,6 @@ void cgi_modify_blog(holyreq_t *req)
 
     blog = blogs.get(&blogs, atoi(id));
     if (!blog) {
-        ERROR();
         req->send_status(req, NOT_FOUND);
         return;
     }
