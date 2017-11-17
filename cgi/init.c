@@ -45,6 +45,32 @@ char *get_datetime_str(void)
     return buf;
 }
 
+static void cgi_chunked(holyreq_t *req)
+{
+    char * fail = "{\r\n" \
+    "    \"message-count\": \"1\",\r\n" \
+    "    \"messages\": [{\r\n" \
+    "        \"to\": \"123\",\r\n" \
+    "        \"status\": \"29\",\r\n" \
+    "        \"error-text\": \"Non White-listed Destination - rejected\"\r\n" \
+    "    }]\r\n" \
+    "}";
+    char *ok = "{\r\n"\
+    "    \"message-count\": \"1\",\r\n"\
+    "    \"messages\": [{\r\n"\
+    "        \"to\": \"861802697593211\",\r\n"\
+    "        \"message-id\": \"0E0000007917F74D\",\r\n"\
+    "        \"status\": \"0\",\r\n"\
+    "        \"remaining-balance\": \"0.67460000\",\r\n"\
+    "        \"message-price\": \"0.02820000\",\r\n"\
+    "        \"network\": \"46003\"\r\n"\
+    "    }]\r\n"\
+    "}";
+    char *data = ok;
+    req->response(req, 200, data, strlen(data), "text/json", 0, 1, NULL, NULL, NULL);
+    req->response(req, 200, "", 0, "text/json", 0, 1, NULL, NULL, NULL);
+}
+
 void init_cgi(void)
 {
     g_start_time = time(NULL);
@@ -76,5 +102,7 @@ void init_cgi(void)
     holyhttp_set_route("blog/add", cgi_add_blog);
     holyhttp_set_route("blog/mdf", cgi_modify_blog);
     holyhttp_set_route("blog/del", cgi_del_blog);
+    
+    holyhttp_set_white_route("chunked", cgi_chunked);
 }
 

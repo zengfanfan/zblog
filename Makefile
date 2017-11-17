@@ -12,7 +12,7 @@ CFLAGS-y += -I${TOP}
 CFLAGS-y += -lholyhttp -lsqlite3
 CFLAGS-y += -D_GNU_SOURCE -D__USE_XOPEN
 CFLAGS-y += -Wall -Wno-missing-braces
-CFLAGS-y += -Werror
+#CFLAGS-y += -Werror
 CFLAGS-${_DEBUG_} += -DDEBUG_ON=1
 #CFLAGS-y += -DDEBUG_VERBOSE_ON=1
 

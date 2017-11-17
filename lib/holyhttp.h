@@ -135,9 +135,8 @@ typedef struct holyreq {
     char *(*get_arg)(struct holyreq *self, char *name);
     int (*get_bin_arg)(struct holyreq *self, char *name, void **value, unsigned *vlen);
     int (*response)(struct holyreq *self, status_code_t code,
-                    void *content, unsigned len, char *type, int age,
-                    char *location, char *encoding,
-                    char *filename);
+                    void *content, unsigned len, char *type, int age, int chunked,
+                    char *location, char *encoding, char *filename);
     int (*redirect)(struct holyreq *self, char *location);
     int (*redirect_top)(struct holyreq *self, char *location);
     int (*redirect_forever)(struct holyreq *self, char *location);
@@ -212,11 +211,12 @@ int holyhttp_set_white_route(char *uri, holyreq_handler_t handler);
 
 /*
     holyhttp_set_common_render_args - set common args for render
+    @separator: separate common args with this
     @fmt: format as printf
     @...: like printf
 
     When req->send_frender/send_srender, these args are included automaticly.
 */
-void holyhttp_set_common_render_args(char *fmt, ...);
+void holyhttp_set_common_render_args(char *separator, char *fmt, ...);
 
 #endif //HOLYHTTP_H
