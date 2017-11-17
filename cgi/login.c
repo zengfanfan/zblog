@@ -3,6 +3,9 @@
 #include <utils/string.h>
 #include "cgi.h"
 
+char *username = "holy";
+char *password = "http";
+
 int is_online(holyreq_t *req)
 {
     char *online = req->get_session(req, "online");
@@ -40,7 +43,7 @@ void cgi_login(holyreq_t *req)
         return;
     }
     
-    if (strcmp(name, "holy") != 0 || strcmp(pwd, "http") != 0) {
+    if (strcmp(name, username) != 0 || strcmp(pwd, password) != 0) {
         req->redirect(req, "/login");
         return;
     }
