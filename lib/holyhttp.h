@@ -118,6 +118,9 @@ typedef struct holyreq {
     version_t version;
     char *url, *uri;
     char *render_separator;// default to ","
+     // @incomplete: set to 1 if you dont want req be freed,
+     // and you MUST do it yourself with: req->free(req)
+    char incomplete;
 
     int (*send_file)(struct holyreq *self, char *filename);
     int (*send_html)(struct holyreq *self, char *html);
@@ -140,6 +143,8 @@ typedef struct holyreq {
     int (*redirect)(struct holyreq *self, char *location);
     int (*redirect_top)(struct holyreq *self, char *location);
     int (*redirect_forever)(struct holyreq *self, char *location);
+    void (*free)(struct holyreq *self);
+    struct holyreq *(*clone)(struct holyreq *self);
 } holyreq_t;
 
 typedef void (*holyreq_handler_t)(holyreq_t *req);

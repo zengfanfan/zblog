@@ -45,6 +45,41 @@ char *get_datetime_str(void)
     return buf;
 }
 
+static void response_delay(holyreq_t *req)
+{
+    char *delay = req->get_arg(req, "delay");
+
+    if (delay) {
+        req->send_html(req, delay);
+    } else {
+        req->send_html(req, "");
+    }
+
+    req->free(req);
+    free(req);
+}
+
+static void cgi_delay(holyreq_t *req)
+{
+    char *delay = req->get_arg(req, "delay");
+    holyreq_t *cpy;
+
+    if (!delay) {
+        req->send_html(req, "");
+        return;
+    }
+
+    cpy = req->clone(req);
+    if (!cpy) {
+        req->send_html(req, "out of memory!");
+        return;
+    }
+
+    req->incomplete = 1;
+
+    set_timeout(atoi(delay), response_delay, cpy);
+}
+
 static void cgi_chunked(holyreq_t *req)
 {
     char * fail = "{\r\n" \
@@ -73,9 +108,9 @@ static void cgi_chunked(holyreq_t *req)
 
 void init_cgi(void)
 {
-    g_start_time = time(NULL);
+    //g_start_time = time(NULL);
     
-    db_table_init(DEF_DB_NAME, &blogs, "blog", blog_cols, BLOG_COL_NUM);
+    //db_table_init(DEF_DB_NAME, &blogs, "blog", blog_cols, BLOG_COL_NUM);
     //db_table_init(DEF_DB_NAME, &comments, "comment", comment_cols, COMMENT_COL_NUM);
 
 #if 0
@@ -90,6 +125,7 @@ void init_cgi(void)
     }
 #endif
 
+#if 0
     holyhttp_set_common_render_args("\x01",
         "g.start_time=%ld\x01g.site_name=%s\x01g.copyright=%s\x01g.navbar=%s",
         g_start_time, g_copyright, g_site_name, navbar_html);
@@ -97,12 +133,15 @@ void init_cgi(void)
     holyhttp_set_white_route("/", cgi_index);
     holyhttp_set_white_route("login", cgi_login);
     holyhttp_set_white_route("blog", cgi_show_blog);
-    //holyhttp_set_white_route("comment/add", cgi_add_comment);
+    holyhttp_set_white_route("comment/add", cgi_add_comment);
     holyhttp_set_route("logout", cgi_logout);
     holyhttp_set_route("blog/add", cgi_add_blog);
     holyhttp_set_route("blog/mdf", cgi_modify_blog);
     holyhttp_set_route("blog/del", cgi_del_blog);
-    
+#endif
+
+    // test
     holyhttp_set_white_route("chunked", cgi_chunked);
+    holyhttp_set_white_route("delay", cgi_delay);
 }
 

@@ -51,12 +51,13 @@ static char *get_static_path(char *path)
 int main(int argc, char *argv[])
 {
     holycfg_t cfg = {
-        .port = 10000,
-        .socket_timeout = 60,
+        .port = 80,
+        .socket_timeout = 5*60,
         .session_timeout = 3600,
         .template_path = get_tmpl_path(argv[0]),
         .static_path = get_static_path(argv[0]),
     };
+    int debug_level = HOLY_DBG_ERROR;
 
     if (argc > 1) {
         username = argv[1];
@@ -64,10 +65,13 @@ int main(int argc, char *argv[])
     if (argc > 2) {
         password = argv[2];
     }
+    if (argc > 3) {
+        debug_level = atoi(argv[3]);
+    }
 
     holyhttp_init(&cfg);
-    holyhttp_set_debug_level(HOLY_DBG_DETAIL);
-    holyhttp_set_prerouting(check_authorized);
+    holyhttp_set_debug_level(debug_level);
+    //holyhttp_set_prerouting(check_authorized);
     init_cgi();
     holyhttp_run();
     return 0;
