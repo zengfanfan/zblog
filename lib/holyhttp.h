@@ -5,6 +5,16 @@
 #ifndef HOLYHTTP_H
 #define HOLYHTTP_H
 
+#define MAX_CACHED_FILE_SIZE (1024*1024) // 1M, larger file will not be cached
+#define HOLY_HASH_BITS  8// the bigger, the faster and larger(memory)
+#define MAX_METHOD_LEN              10
+#define MAX_URL_LEN                 250
+#define MAX_FIELD_NAME_LEN          50// http header field, such as "User-agent: "
+#define MAX_FIELD_VALUE_LEN         250
+#define MAX_BOUNDARY_LEN            100
+
+#define MAX_HEADER_LEN  1024
+
 typedef enum {
     HOLY_DBG_FATAL = 1,
     HOLY_DBG_ERROR,
