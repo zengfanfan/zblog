@@ -51,7 +51,7 @@ static char *get_static_path(char *path)
 int main(int argc, char *argv[])
 {
     holycfg_t cfg = {
-        .port = 8001,
+        .port = 8003,
         .socket_timeout = 5*60,
         .session_timeout = 3600,
         .template_path = get_tmpl_path(argv[0]),
