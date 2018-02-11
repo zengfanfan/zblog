@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     holyhttp_init(&cfg);
     holyhttp_set_debug_level(debug_level);
-    //holyhttp_set_prerouting(check_authorized);
+    holyhttp_set_prerouting(check_authorized);
     init_cgi();
     holyhttp_run();
     return 0;
