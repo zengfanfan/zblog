@@ -1,5 +1,6 @@
 #include <lib/holyhttp.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include "cgi.h"
 #include "blog.h"

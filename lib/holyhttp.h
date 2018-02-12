@@ -5,7 +5,7 @@
 #ifndef HOLYHTTP_H
 #define HOLYHTTP_H
 
-#define MAX_CACHED_FILE_SIZE (1024*1024) // 1M, larger file will not be cached
+#define MAX_CACHED_FILE_SIZE (1024*1024/10240) // 1M, larger file will not be cached
 #define HOLY_HASH_BITS  8// the bigger, the faster and larger(memory)
 #define MAX_METHOD_LEN              10
 #define MAX_URL_LEN                 250

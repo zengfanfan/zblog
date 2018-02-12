@@ -4,8 +4,7 @@ export _DEBUG_ := y
 TARGET := zblog
 OBJS := main.o
 SUBDIRS := utils cgi
-#LIBFILE := ${TOP}/lib/libholyhttp.so
-LIBFILE := ${TOP}/../holyhttp/libholyhttp.so
+LIBFILE := ${TOP}/lib/libholyhttp.so
 
 CFLAGS-${_DEBUG_} += -g -ggdb
 CFLAGS-y += -I${TOP}

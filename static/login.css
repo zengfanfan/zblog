@@ -53,6 +53,10 @@ form .inputs{
     padding: 5px 20px;
 }
 
+form .inputs .form-group{
+    position: relative;
+}
+
 form .code{
     cursor:pointer;
 }
