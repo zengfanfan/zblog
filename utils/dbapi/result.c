@@ -12,18 +12,27 @@
 
 ******************************************************************************/
 #include <stdlib.h>
-#include <string.h>
+#include <utils/string.h>
+#include <utils/print.h>
 #include "result.h"
 #include "table.h"
 
 static void free_result(db_result_t *self)
 {
-    db_row_t *pos, *n;
-    if (!self || self->row_num <= 0) {
+    db_row_t *pos = NULL;
+    int i;
+    
+    if (!self) {
         return;
     }
-    list_for_each_entry_safe(pos, n, &self->rows, link) {
-        list_del(&pos->link);
+
+    for (i = 0; i < self->col_num; ++i) {
+        FREE_IF_NOT_NULL(self->col_names[i]);
+    }
+    self->col_num = 0;
+
+    zlist_foreach_entry_safe(pos, &self->rows, link) {
+        zlist_del(&pos->link);
         free(pos);
     }
     self->row_num = 0;
@@ -36,7 +45,8 @@ int db_result_init(db_result_t *self)
     }
     memset(self, 0, sizeof *self);
     self->free = free_result;
-    INIT_LIST_HEAD(&self->rows);
+    INIT_ZLIST(&self->rows);
+    self->inited = 1;
     return 1;
 }
 

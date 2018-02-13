@@ -4,7 +4,7 @@
 # AUTHOR: zengfanfan #
 ######################
 
-db_dir=/etc/database
+db_dir=/cfg/database
 db_name=default
 postfix="-header -column"
 width="4 3"
@@ -37,34 +37,8 @@ table_exists()
 
 set_db_file()
 {
-    if [ $full_path == 1 ]; then
-        return 0
-    fi
-    
-    main_db_file=$db_dir/$db_name.db
-    bak_db_file=$db_dir/$db_name.bak.db
-    
-    if [ $raw == 1 ]; then
-        db_file=$main_db_file
-        return 0
-    elif [ ! -f $bak_db_file ]; then
-        db_file=$main_db_file
-        return 0
-    elif [ ! -f $main_db_file ]; then
-        db_file=$bak_db_file
-        return 0
-    fi
-
-    db_file=$main_db_file
-    table_exists config
-    if [ $? -eq 0 ]; then
-        main_serial=`sqlite3 $main_db_file 'select serial from config'`
-        bak_serial=`sqlite3 $bak_db_file 'select serial from config'`
-        if [ $main_serial -lt $bak_serial ]; then
-            db_file=$bak_db_file
-        else
-            db_file=$main_db_file
-        fi
+    if [ $full_path == 0 ]; then
+        db_file=$db_dir/$db_name.db
     fi
 }
 
@@ -102,6 +76,10 @@ while getopts 'd:D:f:w:A:h' opt; do
     esac
 done
 
+shift $(($OPTIND - 1))
+if [ $# -gt 0 ]; then
+    table_name=$1
+fi
 
 if [ -z $db_name ] || [ -z $table_name ]; then
     help

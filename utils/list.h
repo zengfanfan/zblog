@@ -1,5 +1,10 @@
-#ifndef _LINUX_LIST_H
-#define _LINUX_LIST_H
+/*
+ * This is actually a <linux/list.h>
+ * Copyright (C) LINUX
+ */
+
+#ifndef ZFF_LIST_H
+#define ZFF_LIST_H
 
 #include "types.h"
 
@@ -13,62 +18,63 @@
  * using the generic single-entry routines.
  */
 
-typedef struct list_head {
-	struct list_head *next, *prev;
-} list_head_t;
+typedef struct zff_list {
+	struct zff_list *next, *prev;
+} zff_list_t;
+#define list_head_t zff_list_t
 
-#define LIST_HEAD_INIT(name) { &(name), &(name) }
+#define ZLIST_INIT(name) { &(name), &(name) }
 
-#define LIST_HEAD(name) \
-	struct list_head name = LIST_HEAD_INIT(name)
+#define ZLIST(name) \
+	zff_list_t name = ZLIST_INIT(name)
 
-static inline void INIT_LIST_HEAD(struct list_head *list)
+static inline void INIT_ZLIST(zff_list_t *list)
 {
 	list->next = list;
 	list->prev = list;
 }
 
 /*
- * Insert a new entry between two known consecutive entries.
+ * Insert a _new entry between two known consecutive entries.
  *
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-static inline void __list_add(struct list_head *new,
-			      struct list_head *prev,
-			      struct list_head *next)
+static inline void __zff_list_add(zff_list_t *_new,
+			      zff_list_t *prev,
+			      zff_list_t *next)
 {
-	next->prev = new;
-	new->next = next;
-	new->prev = prev;
-	prev->next = new;
+	next->prev = _new;
+	_new->next = next;
+	_new->prev = prev;
+	prev->next = _new;
 }
 
 /**
- * list_add - add a new entry
- * @new: new entry to be added
+ * zlist_add - add a _new entry
+ * @_new: _new entry to be added
  * @head: list head to add it after
  *
- * Insert a new entry after the specified head.
+ * Insert a _new entry after the specified head.
  * This is good for implementing stacks.
  */
-static inline void list_add(struct list_head *new, struct list_head *head)
+static inline void zlist_add(zff_list_t *_new, zff_list_t *head)
 {
-	__list_add(new, head, head->next);
+	__zff_list_add(_new, head, head->next);
 }
 
 
 /**
- * list_add_tail - add a new entry
- * @new: new entry to be added
+ * zlist_add_tail - add a _new entry
+ * @_new: _new entry to be added
  * @head: list head to add it before
  *
- * Insert a new entry before the specified head.
+ * Insert a _new entry before the specified head.
  * This is useful for implementing queues.
  */
-static inline void list_add_tail(struct list_head *new, struct list_head *head)
+static inline void zlist_add_tail(zff_list_t *_new, zff_list_t *head)
 {
-	__list_add(new, head->prev, head);
+	__zff_list_add(_new, head->prev, head);
 }
 
 /*
@@ -78,147 +84,147 @@ static inline void list_add_tail(struct list_head *new, struct list_head *head)
  * This is only for internal list manipulation where we know
  * the prev/next entries already!
  */
-static inline void __list_del(struct list_head * prev, struct list_head * next)
+static inline void __zff_list_del(zff_list_t * prev, zff_list_t * next)
 {
 	next->prev = prev;
 	prev->next = next;
 }
 
 /**
- * list_del - deletes entry from list.
+ * zlist_del - deletes entry from list.
  * @entry: the element to delete from the list.
- * Note: list_empty() on entry does not return true after this, the entry is
+ * Note: zlist_empty() on entry does not return true after this, the entry is
  * in an undefined state.
  */
-static inline void list_del(struct list_head *entry)
+static inline void zlist_del(zff_list_t *entry)
 {
-	__list_del(entry->prev, entry->next);
+	__zff_list_del(entry->prev, entry->next);
 	entry->next = NULL;
 	entry->prev = NULL;
 }
 
 /**
- * list_replace - replace old entry by new one
+ * zlist_replace - replace old entry by _new one
  * @old : the element to be replaced
- * @new : the new element to insert
+ * @_new : the _new element to insert
  *
  * If @old was empty, it will be overwritten.
  */
-static inline void list_replace(struct list_head *old,
-				struct list_head *new)
+static inline void zlist_replace(zff_list_t *old,
+				zff_list_t *_new)
 {
-	new->next = old->next;
-	new->next->prev = new;
-	new->prev = old->prev;
-	new->prev->next = new;
+	_new->next = old->next;
+	_new->next->prev = _new;
+	_new->prev = old->prev;
+	_new->prev->next = _new;
 }
 
-static inline void list_replace_init(struct list_head *old,
-					struct list_head *new)
+static inline void zlist_replace_init(zff_list_t *old,
+					zff_list_t *_new)
 {
-	list_replace(old, new);
-	INIT_LIST_HEAD(old);
+	zlist_replace(old, _new);
+	INIT_ZLIST(old);
 }
 
 /**
- * list_del_init - deletes entry from list and reinitialize it.
+ * zlist_del_init - deletes entry from list and reinitialize it.
  * @entry: the element to delete from the list.
  */
-static inline void list_del_init(struct list_head *entry)
+static inline void zlist_del_init(zff_list_t *entry)
 {
-	__list_del(entry->prev, entry->next);
-	INIT_LIST_HEAD(entry);
+	__zff_list_del(entry->prev, entry->next);
+	INIT_ZLIST(entry);
 }
 
 /**
- * list_move - delete from one list and add as another's head
+ * zlist_move - delete from one list and add as another's head
  * @list: the entry to move
  * @head: the head that will precede our entry
  */
-static inline void list_move(struct list_head *list, struct list_head *head)
+static inline void zlist_move(zff_list_t *list, zff_list_t *head)
 {
-	__list_del(list->prev, list->next);
-	list_add(list, head);
+	__zff_list_del(list->prev, list->next);
+	zlist_add(list, head);
 }
 
 /**
- * list_move_tail - delete from one list and add as another's tail
+ * zlist_move_tail - delete from one list and add as another's tail
  * @list: the entry to move
  * @head: the head that will follow our entry
  */
-static inline void list_move_tail(struct list_head *list,
-				  struct list_head *head)
+static inline void zlist_move_tail(zff_list_t *list,
+				  zff_list_t *head)
 {
-	__list_del(list->prev, list->next);
-	list_add_tail(list, head);
+	__zff_list_del(list->prev, list->next);
+	zlist_add_tail(list, head);
 }
 
 /**
- * list_is_last - tests whether @list is the last entry in list @head
+ * zlist_is_last - tests whether @list is the last entry in list @head
  * @list: the entry to test
  * @head: the head of the list
  */
-static inline int list_is_last(const struct list_head *list,
-				const struct list_head *head)
+static inline int zlist_is_last(const zff_list_t *list,
+				const zff_list_t *head)
 {
 	return list->next == head;
 }
 
 /**
- * list_empty - tests whether a list is empty
+ * zlist_empty - tests whether a list is empty
  * @head: the list to test.
  */
-static inline int list_empty(const struct list_head *head)
+static inline int zlist_empty(const zff_list_t *head)
 {
 	return head->next == head;
 }
 
 /**
- * list_empty_careful - tests whether a list is empty and not being modified
+ * zlist_empty_careful - tests whether a list is empty and not being modified
  * @head: the list to test
  *
  * Description:
  * tests whether a list is empty _and_ checks that no other CPU might be
  * in the process of modifying either member (next or prev)
  *
- * NOTE: using list_empty_careful() without synchronization
+ * NOTE: using zlist_empty_careful() without synchronization
  * can only be safe if the only activity that can happen
- * to the list entry is list_del_init(). Eg. it cannot be used
- * if another CPU could re-list_add() it.
+ * to the list entry is zlist_del_init(). Eg. it cannot be used
+ * if another CPU could re-zlist_add() it.
  */
-static inline int list_empty_careful(const struct list_head *head)
+static inline int zlist_empty_careful(const zff_list_t *head)
 {
-	struct list_head *next = head->next;
+	zff_list_t *next = head->next;
 	return (next == head) && (next == head->prev);
 }
 
 /**
- * list_rotate_left - rotate the list to the left
+ * zlist_rotate_left - rotate the list to the left
  * @head: the head of the list
  */
-static inline void list_rotate_left(struct list_head *head)
+static inline void zlist_rotate_left(zff_list_t *head)
 {
-	struct list_head *first;
+	zff_list_t *first;
 
-	if (!list_empty(head)) {
+	if (!zlist_empty(head)) {
 		first = head->next;
-		list_move_tail(first, head);
+		zlist_move_tail(first, head);
 	}
 }
 
 /**
- * list_is_singular - tests whether a list has just one entry.
+ * zlist_is_singular - tests whether a list has just one entry.
  * @head: the list to test.
  */
-static inline int list_is_singular(const struct list_head *head)
+static inline int zlist_is_singular(const zff_list_t *head)
 {
-	return !list_empty(head) && (head->next == head->prev);
+	return !zlist_empty(head) && (head->next == head->prev);
 }
 
-static inline void __list_cut_position(struct list_head *list,
-		struct list_head *head, struct list_head *entry)
+static inline void __zff_list_cut_position(zff_list_t *list,
+		zff_list_t *head, zff_list_t *entry)
 {
-	struct list_head *new_first = entry->next;
+	zff_list_t *new_first = entry->next;
 	list->next = head->next;
 	list->next->prev = list;
 	list->prev = entry;
@@ -228,8 +234,8 @@ static inline void __list_cut_position(struct list_head *list,
 }
 
 /**
- * list_cut_position - cut a list into two
- * @list: a new list to add all removed entries
+ * zlist_cut_position - cut a list into two
+ * @list: a _new list to add all removed entries
  * @head: a list with entries
  * @entry: an entry within head, could be the head itself
  *	and if so we won't cut the list
@@ -241,26 +247,26 @@ static inline void __list_cut_position(struct list_head *list,
  * losing its data.
  *
  */
-static inline void list_cut_position(struct list_head *list,
-		struct list_head *head, struct list_head *entry)
+static inline void zlist_cut_position(zff_list_t *list,
+		zff_list_t *head, zff_list_t *entry)
 {
-	if (list_empty(head))
+	if (zlist_empty(head))
 		return;
-	if (list_is_singular(head) &&
+	if (zlist_is_singular(head) &&
 		(head->next != entry && head != entry))
 		return;
 	if (entry == head)
-		INIT_LIST_HEAD(list);
+		INIT_ZLIST(list);
 	else
-		__list_cut_position(list, head, entry);
+		__zff_list_cut_position(list, head, entry);
 }
 
-static inline void __list_splice(const struct list_head *list,
-				 struct list_head *prev,
-				 struct list_head *next)
+static inline void __zff_list_splice(const zff_list_t *list,
+				 zff_list_t *prev,
+				 zff_list_t *next)
 {
-	struct list_head *first = list->next;
-	struct list_head *last = list->prev;
+	zff_list_t *first = list->next;
+	zff_list_t *last = list->prev;
 
 	first->prev = prev;
 	prev->next = first;
@@ -270,169 +276,171 @@ static inline void __list_splice(const struct list_head *list,
 }
 
 /**
- * list_splice - join two lists, this is designed for stacks
- * @list: the new list to add.
+ * zlist_splice - join two lists, this is designed for stacks
+ * @list: the _new list to add.
  * @head: the place to add it in the first list.
  */
-static inline void list_splice(const struct list_head *list,
-				struct list_head *head)
+static inline void zlist_splice(const zff_list_t *list,
+				zff_list_t *head)
 {
-	if (!list_empty(list))
-		__list_splice(list, head, head->next);
+	if (!zlist_empty(list))
+		__zff_list_splice(list, head, head->next);
 }
 
 /**
- * list_splice_tail - join two lists, each list being a queue
- * @list: the new list to add.
+ * zlist_splice_tail - join two lists, each list being a queue
+ * @list: the _new list to add.
  * @head: the place to add it in the first list.
  */
-static inline void list_splice_tail(struct list_head *list,
-				struct list_head *head)
+static inline void zlist_splice_tail(zff_list_t *list,
+				zff_list_t *head)
 {
-	if (!list_empty(list))
-		__list_splice(list, head->prev, head);
+	if (!zlist_empty(list))
+		__zff_list_splice(list, head->prev, head);
 }
 
 /**
- * list_splice_init - join two lists and reinitialise the emptied list.
- * @list: the new list to add.
+ * zlist_splice_init - join two lists and reinitialise the emptied list.
+ * @list: the _new list to add.
  * @head: the place to add it in the first list.
  *
  * The list at @list is reinitialised
  */
-static inline void list_splice_init(struct list_head *list,
-				    struct list_head *head)
+static inline void zlist_splice_init(zff_list_t *list,
+				    zff_list_t *head)
 {
-	if (!list_empty(list)) {
-		__list_splice(list, head, head->next);
-		INIT_LIST_HEAD(list);
+	if (!zlist_empty(list)) {
+		__zff_list_splice(list, head, head->next);
+		INIT_ZLIST(list);
 	}
 }
 
 /**
- * list_splice_tail_init - join two lists and reinitialise the emptied list
- * @list: the new list to add.
+ * zlist_splice_tail_init - join two lists and reinitialise the emptied list
+ * @list: the _new list to add.
  * @head: the place to add it in the first list.
  *
  * Each of the lists is a queue.
  * The list at @list is reinitialised
  */
-static inline void list_splice_tail_init(struct list_head *list,
-					 struct list_head *head)
+static inline void zlist_splice_tail_init(zff_list_t *list,
+					 zff_list_t *head)
 {
-	if (!list_empty(list)) {
-		__list_splice(list, head->prev, head);
-		INIT_LIST_HEAD(list);
+	if (!zlist_empty(list)) {
+		__zff_list_splice(list, head->prev, head);
+		INIT_ZLIST(list);
 	}
 }
 
 /**
- * list_entry - get the struct for this entry
- * @ptr:	the &struct list_head pointer.
+ * zlist_entry - get the struct for this entry
+ * @ptr:	the &zff_list_t pointer.
  * @type:	the type of the struct this is embedded in.
  * @member:	the name of the list_struct within the struct.
  */
-#define list_entry(ptr, type, member) \
+#define zlist_entry(ptr, type, member) \
 	container_of(ptr, type, member)
 
 /**
- * list_first_entry - get the first element from a list
+ * zlist_first_entry - get the first element from a list
  * @ptr:	the list head to take the element from.
  * @type:	the type of the struct this is embedded in.
  * @member:	the name of the list_struct within the struct.
  *
  * Note, that list is expected to be not empty.
  */
-#define list_first_entry(ptr, type, member) \
-	list_entry((ptr)->next, type, member)
+#define zlist_first_entry(ptr, type, member) \
+	zlist_entry((ptr)->next, type, member)
+#define zlist_last_entry(ptr, type, member) \
+    zlist_entry((ptr)->prev, type, member)
 
 /**
- * list_for_each	-	iterate over a list
- * @pos:	the &struct list_head to use as a loop cursor.
+ * zlist_foreach	-	iterate over a list
+ * @pos:	the &zff_list_t to use as a loop cursor.
  * @head:	the head for your list.
  */
-#define list_for_each(pos, head) \
+#define zlist_foreach(pos, head) \
 	for (pos = (head)->next; pos != (head); \
         	pos = pos->next)
 
 /**
- * __list_for_each	-	iterate over a list
- * @pos:	the &struct list_head to use as a loop cursor.
+ * __zff_list_for_each	-	iterate over a list
+ * @pos:	the &zff_list_t to use as a loop cursor.
  * @head:	the head for your list.
  *
- * This variant differs from list_for_each() in that it's the
+ * This variant differs from zlist_foreach() in that it's the
  * simplest possible list iteration code, no prefetching is done.
  * Use this for code that knows the list to be very short (empty
  * or 1 entry) most of the time.
  */
-#define __list_for_each(pos, head) \
+#define __zff_list_for_each(pos, head) \
 	for (pos = (head)->next; pos != (head); pos = pos->next)
 
 /**
- * list_for_each_prev	-	iterate over a list backwards
- * @pos:	the &struct list_head to use as a loop cursor.
+ * zlist_foreach_prev	-	iterate over a list backwards
+ * @pos:	the &zff_list_t to use as a loop cursor.
  * @head:	the head for your list.
  */
-#define list_for_each_prev(pos, head) \
+#define zlist_foreach_prev(pos, head) \
 	for (pos = (head)->prev; pos != (head); \
         	pos = pos->prev)
 
 /**
- * list_for_each_safe - iterate over a list safe against removal of list entry
- * @pos:	the &struct list_head to use as a loop cursor.
- * @n:		another &struct list_head to use as temporary storage
+ * zlist_foreach_safe - iterate over a list safe against removal of list entry
+ * @pos:	the &zff_list_t to use as a loop cursor.
+ * @n:		another &zff_list_t to use as temporary storage
  * @head:	the head for your list.
  */
-#define list_for_each_safe(pos, n, head) \
+#define zlist_foreach_safe(pos, n, head) \
 	for (pos = (head)->next, n = pos->next; pos != (head); \
 		pos = n, n = pos->next)
 
 /**
- * list_for_each_prev_safe - iterate over a list backwards safe against removal of list entry
- * @pos:	the &struct list_head to use as a loop cursor.
- * @n:		another &struct list_head to use as temporary storage
+ * zlist_foreach_prev_safe - iterate over a list backwards safe against removal of list entry
+ * @pos:	the &zff_list_t to use as a loop cursor.
+ * @n:		another &zff_list_t to use as temporary storage
  * @head:	the head for your list.
  */
-#define list_for_each_prev_safe(pos, n, head) \
+#define zlist_foreach_prev_safe(pos, n, head) \
 	for (pos = (head)->prev, n = pos->prev; \
 	     pos != (head); \
 	     pos = n, n = pos->prev)
 
 /**
- * list_for_each_entry	-	iterate over list of given type
+ * zlist_foreach_entry	-	iterate over list of given type
  * @pos:	the type * to use as a loop cursor.
  * @head:	the head for your list.
  * @member:	the name of the list_struct within the struct.
  */
-#define list_for_each_entry(pos, head, member)				\
-	for (pos = list_entry((head)->next, typeof(*pos), member);	\
+#define zlist_foreach_entry(pos, head, member)				\
+	for (pos = zlist_entry((head)->next, typeof(*pos), member);	\
 	     &pos->member != (head); 	\
-	     pos = list_entry(pos->member.next, typeof(*pos), member))
+	     pos = zlist_entry(pos->member.next, typeof(*pos), member))
 
 /**
- * list_for_each_entry_reverse - iterate backwards over list of given type.
+ * zlist_foreach_entry_reverse - iterate backwards over list of given type.
  * @pos:	the type * to use as a loop cursor.
  * @head:	the head for your list.
  * @member:	the name of the list_struct within the struct.
  */
-#define list_for_each_entry_reverse(pos, head, member)			\
-	for (pos = list_entry((head)->prev, typeof(*pos), member);	\
+#define zlist_foreach_entry_reverse(pos, head, member)			\
+	for (pos = zlist_entry((head)->prev, typeof(*pos), member);	\
 	     &pos->member != (head); 	\
-	     pos = list_entry(pos->member.prev, typeof(*pos), member))
+	     pos = zlist_entry(pos->member.prev, typeof(*pos), member))
 
 /**
- * list_prepare_entry - prepare a pos entry for use in list_for_each_entry_continue()
+ * zlist_prepare_entry - prepare a pos entry for use in zlist_foreach_entry_continue()
  * @pos:	the type * to use as a start point
  * @head:	the head of the list
  * @member:	the name of the list_struct within the struct.
  *
- * Prepares a pos entry for use as a start point in list_for_each_entry_continue().
+ * Prepares a pos entry for use as a start point in zlist_foreach_entry_continue().
  */
-#define list_prepare_entry(pos, head, member) \
-	((pos) ? : list_entry(head, typeof(*pos), member))
+#define zlist_prepare_entry(pos, head, member) \
+	((pos) ? : zlist_entry(head, typeof(*pos), member))
 
 /**
- * list_for_each_entry_continue - continue iteration over list of given type
+ * zlist_foreach_entry_continue - continue iteration over list of given type
  * @pos:	the type * to use as a loop cursor.
  * @head:	the head for your list.
  * @member:	the name of the list_struct within the struct.
@@ -440,13 +448,13 @@ static inline void list_splice_tail_init(struct list_head *list,
  * Continue to iterate over list of given type, continuing after
  * the current position.
  */
-#define list_for_each_entry_continue(pos, head, member) 		\
-	for (pos = list_entry(pos->member.next, typeof(*pos), member);	\
+#define zlist_foreach_entry_continue(pos, head, member) 		\
+	for (pos = zlist_entry(pos->member.next, typeof(*pos), member);	\
 	     &pos->member != (head);	\
-	     pos = list_entry(pos->member.next, typeof(*pos), member))
+	     pos = zlist_entry(pos->member.next, typeof(*pos), member))
 
 /**
- * list_for_each_entry_continue_reverse - iterate backwards from the given point
+ * zlist_foreach_entry_continue_reverse - iterate backwards from the given point
  * @pos:	the type * to use as a loop cursor.
  * @head:	the head for your list.
  * @member:	the name of the list_struct within the struct.
@@ -454,38 +462,40 @@ static inline void list_splice_tail_init(struct list_head *list,
  * Start to iterate over list of given type backwards, continuing after
  * the current position.
  */
-#define list_for_each_entry_continue_reverse(pos, head, member)		\
-	for (pos = list_entry(pos->member.prev, typeof(*pos), member);	\
+#define zlist_foreach_entry_continue_reverse(pos, head, member)		\
+	for (pos = zlist_entry(pos->member.prev, typeof(*pos), member);	\
 	     &pos->member != (head);	\
-	     pos = list_entry(pos->member.prev, typeof(*pos), member))
+	     pos = zlist_entry(pos->member.prev, typeof(*pos), member))
 
 /**
- * list_for_each_entry_from - iterate over list of given type from the current point
+ * zlist_foreach_entry_from - iterate over list of given type from the current point
  * @pos:	the type * to use as a loop cursor.
  * @head:	the head for your list.
  * @member:	the name of the list_struct within the struct.
  *
  * Iterate over list of given type, continuing from current position.
  */
-#define list_for_each_entry_from(pos, head, member) 			\
+#define zlist_foreach_entry_from(pos, head, member) 			\
 	for (; &pos->member != (head);	\
-	     pos = list_entry(pos->member.next, typeof(*pos), member))
+	     pos = zlist_entry(pos->member.next, typeof(*pos), member))
 
 /**
- * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
+ * zlist_foreach_entry_safe - iterate over list of given type safe against removal of list entry
  * @pos:	the type * to use as a loop cursor.
  * @n:		another type * to use as temporary storage
  * @head:	the head for your list.
  * @member:	the name of the list_struct within the struct.
  */
-#define list_for_each_entry_safe(pos, n, head, member)			\
-	for (pos = list_entry((head)->next, typeof(*pos), member),	\
-		n = list_entry(pos->member.next, typeof(*pos), member);	\
-	     &pos->member != (head); 					\
-	     pos = n, n = list_entry(n->member.next, typeof(*n), member))
+#define zlist_foreach_entry_safe(pos, head, member) \
+    typeof(pos) LINE_VAR(zlist_next); \
+	for (pos = zlist_entry((head)->next, typeof(*pos), member),	\
+        LINE_VAR(zlist_next) = zlist_entry(pos->member.next, typeof(*pos), member); \
+        &pos->member != (head); \
+        pos = LINE_VAR(zlist_next), \
+        LINE_VAR(zlist_next) = zlist_entry(LINE_VAR(zlist_next)->member.next, typeof(*pos), member))
 
 /**
- * list_for_each_entry_safe_continue - continue list iteration safe against removal
+ * zlist_foreach_entry_safe_continue - continue list iteration safe against removal
  * @pos:	the type * to use as a loop cursor.
  * @n:		another type * to use as temporary storage
  * @head:	the head for your list.
@@ -494,14 +504,14 @@ static inline void list_splice_tail_init(struct list_head *list,
  * Iterate over list of given type, continuing after current point,
  * safe against removal of list entry.
  */
-#define list_for_each_entry_safe_continue(pos, n, head, member) 		\
-	for (pos = list_entry(pos->member.next, typeof(*pos), member), 		\
-		n = list_entry(pos->member.next, typeof(*pos), member);		\
+#define zlist_foreach_entry_safe_continue(pos, n, head, member) 		\
+	for (pos = zlist_entry(pos->member.next, typeof(*pos), member), 		\
+		n = zlist_entry(pos->member.next, typeof(*pos), member);		\
 	     &pos->member != (head);						\
-	     pos = n, n = list_entry(n->member.next, typeof(*n), member))
+	     pos = n, n = zlist_entry(n->member.next, typeof(*n), member))
 
 /**
- * list_for_each_entry_safe_from - iterate over list from current point safe against removal
+ * zlist_foreach_entry_safe_from - iterate over list from current point safe against removal
  * @pos:	the type * to use as a loop cursor.
  * @n:		another type * to use as temporary storage
  * @head:	the head for your list.
@@ -510,13 +520,13 @@ static inline void list_splice_tail_init(struct list_head *list,
  * Iterate over list of given type from current point, safe against
  * removal of list entry.
  */
-#define list_for_each_entry_safe_from(pos, n, head, member) 			\
-	for (n = list_entry(pos->member.next, typeof(*pos), member);		\
+#define zlist_foreach_entry_safe_from(pos, n, head, member) 			\
+	for (n = zlist_entry(pos->member.next, typeof(*pos), member);		\
 	     &pos->member != (head);						\
-	     pos = n, n = list_entry(n->member.next, typeof(*n), member))
+	     pos = n, n = zlist_entry(n->member.next, typeof(*n), member))
 
 /**
- * list_for_each_entry_safe_reverse - iterate backwards over list safe against removal
+ * zlist_foreach_entry_safe_reverse - iterate backwards over list safe against removal
  * @pos:	the type * to use as a loop cursor.
  * @n:		another type * to use as temporary storage
  * @head:	the head for your list.
@@ -525,11 +535,10 @@ static inline void list_splice_tail_init(struct list_head *list,
  * Iterate backwards over list of given type, safe against removal
  * of list entry.
  */
-#define list_for_each_entry_safe_reverse(pos, n, head, member)		\
-	for (pos = list_entry((head)->prev, typeof(*pos), member),	\
-		n = list_entry(pos->member.prev, typeof(*pos), member);	\
+#define zlist_foreach_entry_safe_reverse(pos, n, head, member)		\
+	for (pos = zlist_entry((head)->prev, typeof(*pos), member),	\
+		n = zlist_entry(pos->member.prev, typeof(*pos), member);	\
 	     &pos->member != (head); 					\
-	     pos = n, n = list_entry(n->member.prev, typeof(*n), member))
+	     pos = n, n = zlist_entry(n->member.prev, typeof(*n), member))
 
-#endif // _LINUX_LIST_H
-
+#endif // ZFF_LIST_H

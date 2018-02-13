@@ -1,4 +1,8 @@
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdarg.h>
+#include <sys/sysinfo.h>
 #include "print.h"
 #include "string.h"
 
@@ -206,5 +210,41 @@ int exec_sys_cmd(char *fmt, ...)
     va_end(ap);
     
     return system(args);
+}
+
+int get_sys_uptime()
+{
+    struct sysinfo info;
+    if (sysinfo(&info) < 0) {
+        ERROR_NO("get sysinfo");
+        return 0;
+    }
+    return info.uptime;
+}
+
+void touch_file(char *filename)
+{
+    int fd = open(filename, O_CREAT|O_RDWR);
+    if (fd < 0) {
+        ERROR_NO("open %s", filename);
+        return;
+    }
+    close(fd);
+}
+
+char *getpname(int pid, char *buf, unsigned len)
+{
+    char fname[64] = {0};
+    FILE *fp;
+    snprintf(fname, sizeof fname, "/proc/%d/cmdline", pid);
+    fp = fopen(fname, "r");
+    if (!fp) {
+        ERROR_NO("open file '%s'", fname);
+        return NULL;
+    }
+    memset(buf, 0, len);
+    (void)fread(buf, len-1, 1, fp);
+    fclose(fp);
+    return buf;
 }
 

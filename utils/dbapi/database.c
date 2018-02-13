@@ -14,171 +14,244 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
+#include <time.h>
+#include <utils/print.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <utils/ipc/shared_memory.h>
+#include "sqlite3.h"
+#include "mysql.h"
 #include "database.h"
 #include "result.h"
 #include "debug.h"
 
-#define SQLITE_DB_MODE  (SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX)
-
-static int callback(void *res, int argc, char *argv[], char *col_names[])
+static int db_url_to_link(char *url, dblink_t *link)
 {
-    int i, data_len;
-    db_result_t *result = (db_result_t *)res;
-    db_row_t *row;
-    char *pos;
+    char *usrpwd, *hsturl, *tmp;
 
-    if (!res || argc <= 0 || argc > DB_MAX_COL_NUM) {
+    if (!link) {
         return 0;
     }
 
-    // col names
-    if (!result->row_num) {// first row
-        result->col_num = argc - DB_PRE_COL_NUM;
-        for (i = DB_PRE_COL_NUM; i < argc; i++) {
-            snprintf(result->col_names[i - DB_PRE_COL_NUM], DB_COL_NAME_LEN, "%s", col_names[i]);
+    memset(link, 0, sizeof *link);
+
+    if (!url) {
+        link->type = DBT_SQLITE3;
+        link->database = DEF_DB_NAME;
+        return 1;
+    }
+
+    if (str_starts_with(url, "sqlite3://")) {
+        // sqlite3://<database>
+        link->type = DBT_SQLITE3;
+        link->database = url + strlen("sqlite3://");
+        return 1;
+    }
+
+    if (!str_starts_with(url, "mysql://")) {
+        DBAPI_ERR("Unknown database type: %s", url);
+        return 0;
+    }
+
+    // mysql://[<username>[:<password>]@]<host>[:<port>]/database
+    link->type = DBT_MYSQL;
+    link->url = strdup(url + strlen("mysql://"));
+    if (!link->url) {
+        return 0;
+    }
+    // database
+    tmp = strchr(link->url, '/');
+    if (tmp) {
+        *tmp = 0;
+        link->database = tmp + 1;
+    }
+    // username:password
+    tmp = strchr(link->url, '@');
+    if (tmp) {
+        *tmp = 0;
+        usrpwd = link->url;
+        hsturl = tmp + 1;
+
+        link->username = usrpwd;
+        tmp = strchr(usrpwd, ':');
+        if (tmp) {
+            *tmp = 0;
+            link->password = tmp + 1;
         }
+    } else {
+        hsturl = link->url;
+    }
+    // host:port
+    link->host = hsturl;
+    tmp = strchr(hsturl, ':');
+    if (tmp) {
+        *tmp = 0;
+        link->port = atoi(tmp + 1);
     }
 
-    // calculate data len
-    for (i = DB_PRE_COL_NUM, data_len = 0; i < argc; i++) {
-        if (!argv[i]) {
-            argv[i] = "";// null will cause core-dumped
-        }
-        data_len += strlen(argv[i]) + 1;
+    // set default values
+    if (!link->database || !link->database[0]) {
+        link->database = DEF_DB_NAME;
     }
-
-    row = (db_row_t *)malloc(sizeof(db_row_t) + data_len);
-    if (!row) {
-        DBAPI_ERR("Out of memory.");
-        return 0;
+    if (!link->username || !link->username[0]) {
+        link->username = DEF_DB_USER;
     }
-
-    memset(row, 0, sizeof(db_row_t) + data_len);
-    list_add_tail(&row->link, &result->rows);
-    result->row_num++;
-    row->id = atoi(argv[0]);
-    row->refer = argc > 1 ? atoi(argv[1]) : 0;
-
-    // fill data
-    for (pos = row->data, i = DB_PRE_COL_NUM; i < argc; i++) {
-        row->values[i - DB_PRE_COL_NUM].s = pos;
-        strcpy(pos, argv[i]);
-        pos += strlen(argv[i]) + 1;
+    if (!link->password || !link->password[0]) {
+        link->password = DEF_DB_PWD;
     }
-
-    return 0;
-}
-
-static int execute(database_t *self, char *cmd, db_result_t *result)
-{
-    char *err_msg = NULL;
-
-    if (!self || !self->inited || !cmd) {
-        DBAPI_ERR("Failed to execute \"%s\", invalid argument.", cmd ? cmd : "<NULL>");
-        return 0;
+    if (!link->host || !link->host[0]) {
+        link->host = DEF_MYSQL_HOST;
     }
-
-    db_result_init(result);
-    DBAPI_DETAIL("[%s] %s", self->name, cmd);
-
-    if (sqlite3_exec(self->db, cmd, callback, result, &err_msg) != SQLITE_OK) {
-        DBAPI_ERR("[%s] Failed to execute \"%s\", %s", self->name, cmd, err_msg);
-        sqlite3_free(err_msg);
-        return 0;
+    if (!link->port) {
+        link->port = DEF_MYSQL_PORT;
     }
 
     return 1;
 }
 
+static int execute(database_t *self, char *cmd, db_result_t *result)
+{
+    switch (self->type) {
+    case DBT_SQLITE3:
+        return db_execute_sqlite3(self, cmd, result);
+    case DBT_MYSQL:
+        return db_execute_mysql(self, cmd, result);
+    default:
+        return 0;
+    }
+}
+
+int db_table_exists(database_t *self, char *tb_name)
+{
+    switch (self->type) {
+    case DBT_SQLITE3:
+        return db_sqlite3_table_exists(self, tb_name);
+    case DBT_MYSQL:
+        return db_mysql_table_exists(self, tb_name);
+    default:
+        return 0;
+    }
+}
+
 static void lock(database_t *self)
 {
-    if (self) {
-        if (!self->locked) {
-            execute(self, "BEGIN TRANSACTION;", NULL);
-        }
-        ++self->locked;
+    if (!self) {
+        return;
     }
+
+    if (!self->lock_cnt) {
+        execute(self, "BEGIN;", NULL);
+    }
+    ++self->lock_cnt;
 }
 
 static void unlock(database_t *self)
 {
-    if (self && self->locked) {
-        if (!--self->locked) {
-            execute(self, "END TRANSACTION;", NULL);
+    if (!self) {
+        return;
+    }
+
+    --self->lock_cnt;
+    if (!self->lock_cnt) {
+        if (self->need_rollback) {
+            execute(self, "ROLLBACK;", NULL);
+            self->need_rollback = 0;
+        } else {
+            execute(self, "COMMIT;", NULL);
         }
     }
 }
 
 static void rollback(database_t *self)
 {
-    if (self && self->locked) {
-        execute(self, "ROLLBACK TRANSACTION;", NULL);
-        self->locked = 0; // 回滚后不需要再unlock
+    if (self) {
+        self->need_rollback = 1;
     }
 }
 
 static void destroy(database_t *self)
 {
-    if (self && self->inited) {
-        sqlite3_close(self->db);
-        self->db = NULL;
-        self->inited = 0;
-    }
-}
-
-void db_name_to_path(char *name, char *path, unsigned pathlen)
-{
-    if (!name || !path || !pathlen) {
+    if (!self || !self->inited) {
         return;
     }
 
-    // create path if not exist
-    system("[ -d '"DB_PATH"' ] || mkdir '"DB_PATH"'");
-
-    // make file path
-    if (name[0] == '/' || !strcmp(MEM_DB_NAME, name)) {
-        snprintf(path, pathlen, "%s", name);
-    } else {
-        snprintf(path, pathlen, "%s/%s.db", DB_PATH, name);
+    switch (self->type) {
+    case DBT_SQLITE3:
+        db_disconnect_sqlite3(self);
+        break;
+    case DBT_MYSQL:
+        db_disconnect_mysql(self);
+        break;
+    default:
+        break;
     }
+
+    self->inited = 0;
+    FREE_IF_NOT_NULL(self->url);
+    self->url = NULL;
+    FREE_IF_NOT_NULL(self->name);
+    self->name = NULL;
 }
 
-int init_database(database_t *self, char *name)
+int init_database(database_t *self, char *url)
 {
-    char path[DB_NAME_LEN * 2];
+    dblink_t link = {0};
+    int ret = 0;
 
-    if (!self || !name || strlen(name) > DB_NAME_LEN - 1) {
-        DBAPI_ERR("Failed to init database '%s', invalid argument.", name ? name : "<NULL>");
+    if (!self || !url || strlen(url) > DB_NAME_LEN - 1) {
+        DBAPI_ERR("Failed to init database '%s', invalid argument.", url ? url : "<NULL>");
         return 0;
     }
 
     if (self->inited) {
         return 1;
     }
-    
-    memset(self, 0, sizeof *self);
-    
-    db_name_to_path(name, path, sizeof path);
 
-    // open dbfile (create db connection)
-    if (sqlite3_open_v2(path, &self->db, SQLITE_DB_MODE, NULL) != SQLITE_OK) {
-        DBAPI_ERR("Failed to open database '%s', %s", path, sqlite3_errmsg(self->db));
-        sqlite3_close(self->db);
+    if (!db_url_to_link(url, &link)) {
         return 0;
     }
-
-    // how long shall we wait if database is locked ?
-    sqlite3_busy_timeout(self->db, DB_DB_TIMEOUT);
+    
+    memset(self, 0, sizeof *self);
 
     // initialize structure
-    strcpy(self->name, name);
+    self->url = strdup(url);
+    self->name = strdup(link.database);
+    if (!self->url || !self->name) {
+        MEMFAIL();
+        goto freemem;
+    }
+
     self->execute = execute;
     self->lock = lock;
     self->unlock = unlock;
     self->rollback = rollback;
     self->close = destroy;
+    self->type = link.type;
+    self->in_memory = !strcmp(link.database, MEM_DB_NAME);
+
+    switch (link.type) {
+    case DBT_SQLITE3:
+        ret = db_connect_sqlite3(self, &link);
+        break;
+    case DBT_MYSQL:
+        ret = db_connect_mysql(self, &link);
+        break;
+    default:
+        goto freemem;
+    }
+
+    if (!ret) {
+        goto freemem;
+    }
+
+    FREE_IF_NOT_NULL(link.url);
     self->inited = 1;
     return 1;
+
+freemem:
+    FREE_IF_NOT_NULL(link.url);
+    FREE_IF_NOT_NULL(self->url);
+    FREE_IF_NOT_NULL(self->name);
+    return 0;
 }
 

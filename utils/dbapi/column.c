@@ -25,13 +25,6 @@ db_col_t g_db_id_col = {
     .is_unique = 1,
 };
 
-db_col_t g_db_ref_col = {
-    .index = DB_PRE_COL_REFER,
-    .name = DB_COL_NAME_REFER,
-    .type = DB_COL_INT,
-    .is_unique = 1,
-};
-
 char *db_col_to_type_str(db_col_t *col, char *buf, unsigned buf_sz)
 {
     if (!col || !buf || !buf_sz) {
@@ -43,8 +36,14 @@ char *db_col_to_type_str(db_col_t *col, char *buf, unsigned buf_sz)
     case DB_COL_INT:
         STR_APPEND(buf, buf_sz, "INTEGER");
         break;
+    case DB_COL_BIGINT:
+        STR_APPEND(buf, buf_sz, "BIGINT");
+        break;
     case DB_COL_FLOAT:
         STR_APPEND(buf, buf_sz, "FLOAT");
+        break;
+    case DB_COL_DOUBLE:
+        STR_APPEND(buf, buf_sz, "DOUBLE");
         break;
     case DB_COL_STR:
         if (col->length <= 0) {
@@ -53,7 +52,7 @@ char *db_col_to_type_str(db_col_t *col, char *buf, unsigned buf_sz)
             col->length = DB_MAX_STR_LEN;
         }
         
-        STR_APPEND(buf, buf_sz, "NVARCHAR(%d)", col->length);
+        STR_APPEND(buf, buf_sz, "NVARCHAR(%u)", col->length);
         break;
     default:
         return "";
@@ -61,10 +60,6 @@ char *db_col_to_type_str(db_col_t *col, char *buf, unsigned buf_sz)
 
     if (col->is_unique) {
         STR_APPEND(buf, buf_sz, " UNIQUE");
-    }
-
-    if (col->def_val) {
-        STR_APPEND(buf, buf_sz, " DEFAULT %s", col->def_val);
     }
 
     return buf;

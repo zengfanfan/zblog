@@ -17,17 +17,45 @@
 #include "backup.h"
 #include "column.h"
 #include "result.h"
+#include "mysql.h"
+#include "sqlite3.h"
 
-#define DB_TABLE_NAME_LEN  64
+#define DB_TABLE_NAME_LEN       64
+#define DB_MAX_INT              (u64)(-1LL)
 
 typedef struct db_table {
     char *name; // 名字
-    char *db_name; // 数据库名, NULL则使用默认
-    db_backup_t backup; // 数据库备份
+    char *db_url; // 数据库URL
+    db_backup_t *backup; // 数据库备份对象
     db_col_t *cols; // 列
-    int col_num; // 列数
-    int inited; // 是(1)否(0)已初始化
-    list_head_t values;// 存临时数据
+    unsigned char col_num:6; // 列数
+    unsigned char inited:1; // 是(1)否(0)已初始化
+    unsigned char readonly:1;
+    zff_list_t values;// 存临时数据
+
+    /*
+     *  lock - 加锁
+     *  @self: 表
+     *
+     *  加锁并开启事务
+     */
+    void (*lock)(struct db_table *self);
+
+    /*
+     *  unlock - 解锁
+     *  @self: 表
+     *
+     *  解锁并关闭事务
+     */
+    void (*unlock)(struct db_table *self);
+
+    /*
+     *  rollback - 回滚
+     *  @self: 表
+     *
+     *  回滚事务
+     */
+    void (*rollback)(struct db_table *self);
 
     /*
      *  add - 添加一行
@@ -38,7 +66,20 @@ typedef struct db_table {
      *
      *  return: 失败返回0, 成功返回新增的行的ID
      */
-    int (*add)(struct db_table *self, db_value_t values[]);
+    bigint (*add)(struct db_table *self, db_value_t values[]);
+
+    /*
+     *  add_multi - 添加多行
+     *  @self: 表
+     *  @replace: 冲突时是(1)否(0)覆盖
+     *  @values: 各个列的值
+     *  @n: 要添加的行数
+     *
+     *  该函数比开启事务后添加多行的方式更快
+     *
+     *  return: 1-ok, o-fail
+     */
+    int (*add_multi)(struct db_table *self, int replace, db_value_t values[], unsigned n);
 
     /*
      *  add_or_replace - 添加一行, 若存在则覆盖
@@ -82,6 +123,17 @@ typedef struct db_table {
      *  return: 1-ok, 0-fail
      */
     int (*set)(struct db_table *self, int id, db_value_t values[]);
+
+    /*
+     *  set - 根据ID和列序号修改列
+     *  @self: 表
+     *  @id: 要修改的行的ID
+     *  @col_index: 列序号
+     *  @col_val: 列的新值
+     *
+     *  return: 1-ok, 0-fail
+     */
+    int (*set_col)(struct db_table *self, int id, int col_index, db_value_t col_val);
 
     /*
      *  set_by - 根据列值修改行
@@ -181,24 +233,6 @@ typedef struct db_table {
     int (*count_by)(struct db_table *self, int col_index, db_value_t col_val);
 
     /*
-     *  inc_refer - 引用计数+1
-     *  @self: 表
-     *  @id: 要操作的行的ID
-     *
-     *  return: 1-ok, 0-fail
-     */
-    int (*inc_refer)(struct db_table *self, int id);
-
-    /*
-     *  dec_refer - 引用计数-1
-     *  @self: 表
-     *  @id: 要操作的行的ID
-     *
-     *  return: 1-ok, 0-fail
-     */
-    int (*dec_refer)(struct db_table *self, int id);
-
-    /*
      *  print_row - 打印一行
      *  @self: 表
      *  @row: 要打印的行
@@ -229,7 +263,7 @@ typedef struct db_table {
      *  return: 1-ok, 0-fail
      */
     int (*select)(struct db_table *self,
-                    char *condition, char *order_by, int offset, int limit,
+                    char *condition, char *order_by, u64 offset, u64 limit,
                     db_result_t *result);
     
     /*
@@ -245,6 +279,19 @@ typedef struct db_table {
      *  return: 1-ok, 0-fail
      */
     int (*update)(struct db_table *self, char *setcmd, char *condition);
+
+    /*
+     *  delete - 高级删除, 可以定制匹配的条件
+     *  @self: 表
+     *  @condition: 匹配条件 (SQL语句中的WHERE子句), 空则表示所有行
+     *
+     *  示例:
+     *  table->delete(table, "id >= 3 AND id <= 9");
+     *  ==> DELETE FROM XXX WHERE (id >= 3 AND id <= 9);
+     *
+     *  return: 1-ok, 0-fail
+     */
+    int (*del_where)(struct db_table *self, char *condition);
 
 } db_table_t;
 
@@ -262,11 +309,9 @@ int db_table_init(char *db_name, db_table_t *table, char *tab_name,
     db_col_t cols[], int col_num);
 
 
-int db_add_row(db_table_t *self, db_value_t values[]);
+bigint db_add_row(db_table_t *self, db_value_t values[]);
 db_row_t *db_find_first(db_table_t *self, int col_index, db_value_t col_val);
 int db_find_all(db_table_t *self, int col_index, db_value_t col_val, db_result_t *result);
-int db_inc_refer(db_table_t *self, int id);
-int db_dec_refer(db_table_t *self, int id);
 db_row_t *db_get_row(db_table_t *self, int id);
 int db_set_row(db_table_t *self, int id, db_value_t values[]);
 int db_get_all(db_table_t *self, db_result_t *result);
@@ -278,9 +323,11 @@ int db_count(db_table_t *self);
 int db_count_by(db_table_t *self, int col_index, db_value_t col_val);
 void db_print_row(db_table_t *self, db_row_t *row);
 int db_query(db_table_t *self,
-            char *condition, char *order_by, int offset, int limit,
+            char *condition, char *order_by, u64 offset, u64 limit,
             db_result_t *result);
 int db_update(db_table_t *self, char *setcmd, char *condition);
+void db_lock(db_table_t *self);
+void db_unlock(db_table_t *self);
 
 /*
     db_set_value - 设置指定列的值

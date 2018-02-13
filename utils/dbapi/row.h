@@ -16,14 +16,12 @@
 #ifndef PROD_COMMON_DBAPI_ROW_H
 #define PROD_COMMON_DBAPI_ROW_H
 
-#include <sqlite3.h>
 #include <utils/list.h>
 #include "column.h"
 
 typedef struct {
-    list_head_t link;
-    int id;
-    int refer;
+    zff_list_t link;
+    bigint id;
     db_value_t values[DB_MAX_COL_NUM];
     char data[0];
 } db_row_t;

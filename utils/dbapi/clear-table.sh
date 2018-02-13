@@ -4,7 +4,7 @@
 # AUTHOR: zengfanfan #
 ######################
 
-db_dir=/etc/database
+db_dir=/cfg/database
 db_name=default
 sqlopts=
 full_path=0
@@ -68,6 +68,11 @@ while getopts 'D:f:A:h' opt; do
         h) help;;
     esac
 done
+
+shift $(($OPTIND - 1))
+if [ $# -gt 0 ]; then
+    table_name=$1
+fi
 
 
 if [ -z $db_name ] || [ -z $table_name ]; then

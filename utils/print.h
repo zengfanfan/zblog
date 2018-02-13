@@ -66,6 +66,8 @@ typedef enum {
 #define FATAL(fmt, args...) \
     __PRINT_DATETIME;PRINT_HOLY_RED(__LINE_FMT(fmt), ##args)
 
+#define DEBUG_NO(fmt, args...) \
+    DEBUG("Failed(%d) to " fmt ", %s.", errno, ##args, strerror(errno))
 #define ERROR_NO(fmt, args...) \
     ERROR("Failed(%d) to " fmt ", %s.", errno, ##args, strerror(errno))
 #define FATAL_NO(fmt, args...) \

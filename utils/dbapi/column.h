@@ -15,17 +15,13 @@
 #define PROD_COMMON_DBAPI_COLUMN_H
 
 #define DB_COL_NAME_LEN    64
-#define DB_MAX_COL_NUM     16
-#define DB_MAX_STR_LEN     (512*1024)
+#define DB_MAX_COL_NUM     32
+#define DB_MAX_STR_LEN     1024
 #define DB_DEF_STR_LEN     128
 
-enum {// MUST < 0
-    DB_PRE_COL_ID = -1,// 预定义的列: ID
-    DB_PRE_COL_REFER = -2,// 预定义的列: 引用计数
-};
-#define DB_PRE_COL_NUM     2 // 预定义的列的数量
+#define DB_PRE_COL_ID -1
+#define DB_PRE_COL_NUM 1 // 预定义的列的数量
 #define DB_COL_NAME_ID "id"
-#define DB_COL_NAME_REFER "ref"
 
 typedef long long bigint;
 
@@ -60,12 +56,11 @@ typedef union {
 } db_value_t;
 
 typedef struct {
-    int index;// 序号, 表示第几列
+    char index;// 序号, 表示第几列
     char *name;// 列的名称
     db_col_type_t type;
-    int is_unique;// 是否唯一 (不能存在该列的值相同的两行), 例如用户名是唯一的
-    int length; // 字符串的最大长度
-    char *def_val;// 默认值, 非必须
+    char is_unique;// 是否唯一 (不能存在该列的值相同的两行), 例如用户名是唯一的
+    unsigned length; // 字符串的最大长度
 } db_col_t;
 
 // 定义整数类型的列
@@ -80,6 +75,18 @@ typedef struct {
     .name = _name,\
     .is_unique = 1,\
 }
+#define DB_COL_SET_BIGINT(_index, _name) {\
+    .index = _index,\
+    .type = DB_COL_BIGINT,\
+    .name = _name,\
+}
+#define DB_COL_SET_BIGINT_UNQ(_index, _name) {\
+    .index = _index,\
+    .type = DB_COL_BIGINT,\
+    .name = _name,\
+    .is_unique = 1,\
+}
+#define DB_COL_SET_BOOL DB_COL_SET_INT
 // 定义浮点型的列
 #define DB_COL_SET_FLOAT(_index, _name) {\
     .index = _index,\
@@ -89,6 +96,18 @@ typedef struct {
 #define DB_COL_SET_FLOAT_UNQ(_index, _name) {\
     .index = _index,\
     .type = DB_COL_FLOAT,\
+    .name = _name,\
+    .is_unique = 1,\
+}
+// 定义双精度浮点型的列
+#define DB_COL_SET_DOUBLE(_index, _name) {\
+    .index = _index,\
+    .type = DB_COL_DOUBLE,\
+    .name = _name,\
+}
+#define DB_COL_SET_DOUBLE_UNQ(_index, _name) {\
+    .index = _index,\
+    .type = DB_COL_DOUBLE,\
     .name = _name,\
     .is_unique = 1,\
 }
@@ -108,7 +127,6 @@ typedef struct {
 }
 
 extern db_col_t g_db_id_col;
-extern db_col_t g_db_ref_col;
 
 
 /*

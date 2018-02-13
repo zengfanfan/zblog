@@ -15,27 +15,51 @@
 #define PROD_COMMON_DBAPI_DATABASE_H
 
 #include <sqlite3.h>
+#include <mariadb/mysql.h>
 #include "result.h"
 
 #define DB_NAME_LEN 64
 
-#define DB_PATH  "/etc/database"
-
 #define MEM_DB_NAME     ":memory:"
 #define DEF_DB_NAME     "default"
 
-#define DB_MAX_CMD_LEN (DB_MAX_STR_LEN * 2)
-#define DB_TINY_CMD_LEN 1024
-#define DB_DB_TIMEOUT  6000//ms
+#define DEF_DB_USER     "root"
+#define DEF_DB_PWD      ""
+#define DEF_MYSQL_HOST  "localhost"
+#define DEF_MYSQL_PORT  3306
+
+#define DB_MAX_CMD_LEN (DB_MAX_STR_LEN * 4)
+#define DB_EXEC_TIMEOUT 20// how many SECONDS shall we wait if database is locked
+#define DB_WARNING_TIMEOUT 5 //seconds
+
+typedef enum {
+    DBT_SQLITE3,
+    DBT_MYSQL,
+    DBT_NUM
+} dbtype_t;
+
+typedef struct {
+    dbtype_t type;
+    char *url;
+    char *database;
+    char *username;
+    char *password;
+    char *host;
+    unsigned short port;
+} dblink_t;
 
 typedef struct database {
-    char name[DB_NAME_LEN];// 数据库名
-    sqlite3 *db; // sqlite3 数据库连接对象指针
-    int inited; // 是(1)否(0)已初始化
-    int locked; // 是(1)否(0)已加锁
-    
-    bigint serial;// 序号, 越大说明数据库越新
-    char last_cmd[DB_MAX_CMD_LEN];//上次执行的命令, 交替执行时要重复执行另一个数据库的命令
+    char *url;
+    char *name;// 数据库名
+    dbtype_t type;
+    union {
+        sqlite3 *s3db;
+        MYSQL mysql;
+    };
+    char inited:1; // 是(1)否(0)已初始化
+    char in_memory:1;
+    char need_rollback;// 是(1)否(0)需要回滚
+    int lock_cnt; // 是(>0)否(0)已加锁
 
     /*
      *  execute - 执行指定SQL语句
@@ -88,21 +112,13 @@ typedef struct database {
 /*
  *  init_database - 初始化数据库
  *  @self: 数据库
- *  @name: 数据库名字
+ *  @url: 数据库URL (sqlite3://<database>; mysql://[<username>[:<password>]@]<host>[:<port>]/database)
  *
  *  仅在 db_table_init 内使用, 外部不应该调用该函数
  *
  *  returns: 1-ok, 0-fail
  */
-int init_database(database_t *self, char *name);
-
-/*
- *  db_name_to_path - 把数据库名转成数据库文件路径
- *  @name: 数据库名字
- *  @path: 保存数据库文件路径
- *  @pathlen: @path的最大长度
- *
- */
-void db_name_to_path(char *name, char *path, unsigned pathlen);
+int init_database(database_t *self, char *url);
+int db_table_exists(database_t *self, char *tb_name);
 
 #endif // PROD_COMMON_DBAPI_DATABASE_H
