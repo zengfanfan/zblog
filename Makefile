@@ -8,7 +8,8 @@ LIBFILE := ${TOP}/lib/libholyhttp.so
 
 CFLAGS-${_DEBUG_} += -g -ggdb
 CFLAGS-y += -I${TOP}
-CFLAGS-y += -lholyhttp -lsqlite3
+CFLAGS-y += -lholyhttp -lsqlite3 -pthread -lm
+CFLAGS-y += -lssl -lcrypto -lmariadb
 CFLAGS-y += -D_GNU_SOURCE -D__USE_XOPEN
 CFLAGS-y += -Wall -Wno-missing-braces
 #CFLAGS-y += -Werror

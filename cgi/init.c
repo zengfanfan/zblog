@@ -113,7 +113,7 @@ void init_cgi(void)
 {
     g_start_time = time(NULL);
     
-    db_table_init(DEF_DB_NAME, &blogs, "blog", blog_cols, BLOG_COL_NUM);
+    db_table_init("sqlite3://default", &blogs, "blog", blog_cols, BLOG_COL_NUM);
     //db_table_init(DEF_DB_NAME, &comments, "comment", comment_cols, COMMENT_COL_NUM);
 
 #if 0

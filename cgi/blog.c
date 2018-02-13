@@ -18,7 +18,7 @@ void cgi_index(holyreq_t *req)
     }
 
     db_foreach_result(blog, &result) {
-        STR_APPEND(args, sizeof(args), "blogs.%d.id=%d\x01", i, blog->id);
+        STR_APPEND(args, sizeof(args), "blogs.%d.id=%lld\x01", i, blog->id);
         STR_APPEND(args, sizeof(args), "blogs.%d.title=%s\x01",
             i, blog->values[BLOG_COL_TITLE].s);
         STR_APPEND(args, sizeof(args), "blogs.%d.content=%s\x01",
@@ -53,7 +53,7 @@ void cgi_show_blog(holyreq_t *req)
     }
 
     STR_APPEND(args, sizeof(args), "online=%d\x01", is_online(req));
-    STR_APPEND(args, sizeof(args), "blog.id=%d\x01", blog->id);
+    STR_APPEND(args, sizeof(args), "blog.id=%lld\x01", blog->id);
     STR_APPEND(args, sizeof(args), "blog.title=%s\x01",
         blog->values[BLOG_COL_TITLE].s);
     STR_APPEND(args, sizeof(args), "blog.content=%s\x01",
@@ -90,7 +90,7 @@ void cgi_modify_blog(holyreq_t *req)
         STR_APPEND(args, sizeof(args), "modify=1\x01");
         STR_APPEND(args, sizeof(args), "title=[编辑文章] %s - %s\x01",
             blog->values[BLOG_COL_TITLE].s, g_site_name);
-        STR_APPEND(args, sizeof(args), "blog.id=%d\x01", blog->id);
+        STR_APPEND(args, sizeof(args), "blog.id=%lld\x01", blog->id);
         STR_APPEND(args, sizeof(args), "blog.title=%s\x01",
             blog->values[BLOG_COL_TITLE].s);
         STR_APPEND(args, sizeof(args), "blog.content=%s\x01",
@@ -119,7 +119,7 @@ void cgi_modify_blog(holyreq_t *req)
     if (!blogs.set(&blogs, blog->id, blog->values)) {
         req->send_status(req, INTERNAL_ERROR);
     } else {
-        snprintf(location, sizeof location, "/blog?id=%d", blog->id);
+        snprintf(location, sizeof location, "/blog?id=%lld", blog->id);
         req->redirect(req, location);
     }
     
