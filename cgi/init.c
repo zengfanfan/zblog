@@ -41,7 +41,7 @@ char *get_datetime_str(void)
     localtime_r(&utc_time, &now);
 
     snprintf(buf, sizeof buf, "%04d-%02d-%02d %02d:%02d:%02d",
-        now.tm_year + 1900, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec);
+        now.tm_year + 1900, now.tm_mon + 1, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec);
 
     return buf;
 }

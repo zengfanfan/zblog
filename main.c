@@ -37,14 +37,14 @@ static char *dirname(char *path)
 static char *get_tmpl_path(char *path)
 {
     static char buf[256] = {0};
-    STR_APPEND(buf, sizeof buf, "%s/template", dirname(path));
+    snprintf(buf, sizeof buf, "%s/template", dirname(path));
     return buf;
 }
 
 static char *get_static_path(char *path)
 {
     static char buf[256] = {0};
-    STR_APPEND(buf, sizeof buf, "%s/static", dirname(path));
+    snprintf(buf, sizeof buf, "%s/static", dirname(path));
     return buf;
 }
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
         .template_path = get_tmpl_path(argv[0]),
         .static_path = get_static_path(argv[0]),
     };
-    int debug_level = HOLY_DBG_ERROR;
+    int debug_level = HOLY_DBG_DETAIL;//HOLY_DBG_ERROR;
 
     if (argc > 1) {
         username = argv[1];

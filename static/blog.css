@@ -16,6 +16,12 @@
     padding-top: 33px;
 }
 
+.content p{
+    text-indent: 2em;
+}
+
 .content p:hover{
     background-color: #c9ebf7;
+    border-radius: 4px;
 }
+

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
+#include "types.h"
 
 typedef enum {
     B_BLACK = 40,
@@ -31,7 +33,7 @@ typedef enum {
 #define STYLE_NONE  "\033[0m"
 
 #define PRINT_COLOR(b_color, f_color, fmt, ...) \
-    printf(STYLE_FMT fmt STYLE_NONE, b_color, f_color, ##__VA_ARGS__)
+    printf(STYLE_FMT fmt STYLE_NONE, b_color, f_color, ##__VA_ARGS__);fflush(stdout);
 
 #define PRINT_NORMAL(fmt, ...)      printf(STYLE_NONE fmt STYLE_NONE, ##__VA_ARGS__)
 #define PRINT_HOLY_RED(fmt, ...)    PRINT_COLOR(B_RED, F_WHITE, fmt, ##__VA_ARGS__)
@@ -44,17 +46,25 @@ typedef enum {
 #define PRINT_WHITE(fmt, ...)       PRINT_COLOR(B_BLACK, F_WHITE, fmt, ##__VA_ARGS__)
 
 #define __LINE_FMT(fmt) "%04d %-10.10s: " fmt "\n", __LINE__, __func__
+#define __PRINT_DATETIME {\
+    struct tm LINE_VAR(now);\
+    time_t LINE_VAR(t) = time(NULL);\
+    localtime_r(&LINE_VAR(t), &LINE_VAR(now));\
+    PRINT_NORMAL("[%02d%02d %02d:%02d:%02d] ",\
+        LINE_VAR(now).tm_mon + 1, LINE_VAR(now).tm_mday,\
+        LINE_VAR(now).tm_hour, LINE_VAR(now).tm_min, LINE_VAR(now).tm_sec);\
+}
 
 #define DEBUG(fmt, args...) \
-    PRINT_CYAN(__LINE_FMT(fmt), ##args)
+    __PRINT_DATETIME;PRINT_CYAN(__LINE_FMT(fmt), ##args)
 #define INFO(fmt, args...) \
-    PRINT_WHITE(__LINE_FMT(fmt), ##args)
+    __PRINT_DATETIME;PRINT_WHITE(__LINE_FMT(fmt), ##args)
 #define WARN(fmt, args...) \
-    PRINT_YELLOW(__LINE_FMT(fmt), ##args)
+    __PRINT_DATETIME;PRINT_YELLOW(__LINE_FMT(fmt), ##args)
 #define ERROR(fmt, args...) \
-    PRINT_RED(__LINE_FMT(fmt), ##args)
+    __PRINT_DATETIME;PRINT_RED(__LINE_FMT(fmt), ##args)
 #define FATAL(fmt, args...) \
-    PRINT_HOLY_RED(__LINE_FMT(fmt), ##args)
+    __PRINT_DATETIME;PRINT_HOLY_RED(__LINE_FMT(fmt), ##args)
 
 #define ERROR_NO(fmt, args...) \
     ERROR("Failed(%d) to " fmt ", %s.", errno, ##args, strerror(errno))
