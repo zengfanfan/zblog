@@ -9,13 +9,18 @@ void cgi_index(holyreq_t *req)
     char args[ARGS_BUF_SIZE] = {0};
     int i = 0;
     db_result_t result;
-    db_row_t *blog;
+    db_row_t *blog = NULL;
 
     STR_APPEND(args, sizeof(args), "online=%d\x01", is_online(req));
-
+#if 0
     if (!blogs.find_all(&blogs, BLOG_COL_ACTIVE, (db_value_t)1, &result)) {
         goto exit;
     }
+#else
+    if (!blogs.all(&blogs, &result)) {
+        goto exit;
+    }
+#endif
 
     db_foreach_result(blog, &result) {
         STR_APPEND(args, sizeof(args), "blogs.%d.id=%lld\x01", i, blog->id);
@@ -165,26 +170,35 @@ void cgi_add_blog(holyreq_t *req)
 void cgi_del_blog(holyreq_t *req)
 {
     char *id = req->get_arg(req, "id");
-    db_row_t *blog;
+    int result = 0;
 
     if (!id) {
         req->send_status(req, BAD_REQUEST);
         return;
     }
 
-    blog = blogs.get(&blogs, atoi(id));
+#if 0
+    db_row_t *blog = blogs.get(&blogs, atoi(id));
     if (!blog) {
         req->send_status(req, NOT_FOUND);
         return;
     }
 
     blog->values[BLOG_COL_ACTIVE].i = 0;
-    
-    if (!blogs.set(&blogs, blog->id, blog->values)) {
-        req->send_status(req, INTERNAL_ERROR);
-        return;
+    if (blogs.set(&blogs, blog->id, blog->values)) {
+        result = 1;
     }
-    
-    req->redirect(req, "/");
+    free(blog);
+#else
+    if (blogs.del(&blogs, atoi(id))) {
+        result = 1;
+    }
+#endif
+
+    if (result) {
+        req->redirect(req, "/");
+    } else {
+        req->send_status(req, INTERNAL_ERROR);
+    }
 }
 

@@ -27,8 +27,6 @@ char *uint_to_s64(u64 n);
 int str_isdecimal(char *str);
 u32 bkdr_hash_bin(void *bin, u32 len);
 u32 bkdr_hash(char *str);
-void *memfind(void *src, u32 slen, void *pattern, u32 plen);
-char *strnstr(char *src, char *pattern, u32 slen);
 void *memdup(void *src, u32 len);
 int exec_sys_cmd(char *fmt, ...);
 int get_sys_uptime();

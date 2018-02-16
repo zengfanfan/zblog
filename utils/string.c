@@ -37,23 +37,6 @@ u32 bkdr_hash(char *str)
     return hash;
 }
 
-void *memfind(void *src, u32 slen, void *pattern, u32 plen)
-{
-    int i;
-    
-    if (!src || !pattern || !slen || !plen || slen < plen) {
-        return NULL;
-    }
-
-    for (i = 0; plen <= (slen - i); ++src, ++i) {
-        if (!memcmp(src, pattern, plen)) {
-            return src;
-        }
-    }
-    
-    return NULL;
-}
-
 void *memdup(void *src, u32 len)
 {
     void *tmp;
@@ -68,14 +51,6 @@ void *memdup(void *src, u32 len)
     }
     
     return tmp;
-}
-
-char *strnstr(char *src, char *pattern, u32 slen)
-{
-    if (!src || !pattern || !slen) {
-        return NULL;
-    }
-    return (char *)memfind(src, slen, pattern, strlen(pattern));
 }
 
 void str2lower(char *str)

@@ -19,8 +19,13 @@ static char *navbar_html = \
 "<a class=\"navbar-brand\"href=\"/\">"\
 "<img src=\"/static/favicon.ico\"alt=\"HOME\"></a></div>"\
 "<p class=\"navbar-text\"><a class=\"navbar-link\"href=\"/\">"SITE_NAME"</a></p>"\
-"<a href=\"/blog/add\"class=\"btn btn-default navbar-btn navbar-right\">"\
-"<i class=\"glyphicon glyphicon-pencil\">&#12288;</i>写文章</a>"\
+"<ul class=\"nav navbar-nav navbar-right\">"\
+"<li style=\"margin-right:30px;\"><a target=\"_blank\" style=\"padding:0;\""\
+" href=\"//so.zengfanfan.com\"class=\"navbar-brand\" title=\"零零搜\">"\
+"<img src=\"//so.zengfanfan.com/static/img/favicon.png\" alt=\"零零搜\"></a></li>"\
+"<li><a target=\"_blank\" href=\"/blog/add\"class=\"navbar-brand\">"\
+"<i class=\"glyphicon glyphicon-pencil\"> </i> 写文章</a></li>"\
+"</ul>"\
 "</div></nav>";
 
 static db_col_t blog_cols[BLOG_COL_NUM] = {

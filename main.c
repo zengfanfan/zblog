@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
 {
     holycfg_t cfg = {
         .port = 8003,
-        .socket_timeout = 5*60,
-        .session_timeout = 3600,
+        .socket_timeout = 10,
+        .session_timeout = 15*60,
         .template_path = get_tmpl_path(argv[0]),
         .static_path = get_static_path(argv[0]),
     };
